@@ -13,19 +13,19 @@ return [
     ],
 
     'permissions' => [
-        'app_services.list' => [
+        'services.list' => [
             'display_name' => 'List App Services',
             'description' => 'Permission to list all app services',
         ],
-        'app_services.create' => [
+        'services.create' => [
             'display_name' => 'Create App Service',
             'description' => 'Permission to create a new app service',
         ],
-        'app_services.update' => [
+        'services.update' => [
             'display_name' => 'Update App Service',
             'description' => 'Permission to update an existing app service',
         ],
-        'app_services.delete' => [
+        'services.delete' => [
             'display_name' => 'Delete App Service',
             'description' => 'Permission to delete an app service',
         ],

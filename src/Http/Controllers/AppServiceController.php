@@ -11,7 +11,14 @@ class AppServiceController extends BaseController
 {
     public function __construct(protected OAuthService $oAuthService)
     {
-        $this->middleware(CheckManagerPermissionMiddleware::class . ":" . config('app-service.permissions.app_service.list'));
+        $this->middleware(CheckManagerPermissionMiddleware::class .
+            ":" . config('app-service.permissions.services.list'))->only('index');
+        $this->middleware(CheckManagerPermissionMiddleware::class .
+            ":" . config('app-service.permissions.services.create'))->only(['create', 'store']);
+        $this->middleware(CheckManagerPermissionMiddleware::class .
+            ":" . config('app-service.permissions.services.update'))->only(['edit', 'update']);
+        $this->middleware(CheckManagerPermissionMiddleware::class .
+            ":" . config('app-service.permissions.services.delete'))->only('destroy');
     }
 
     public function index()
@@ -43,7 +50,7 @@ class AppServiceController extends BaseController
             'is_active' => $request->get("is_active"),
         ]);
 
-        return redirect()->route('app-service.edit', $service->id)->with('success', 'Service has been created.');
+        return redirect()->route('admin.services.edit', $service)->with('success', 'Service has been created.');
     }
 
     public function edit(Service $service)
