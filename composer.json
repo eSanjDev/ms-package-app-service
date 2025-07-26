@@ -1,5 +1,5 @@
 {
-    "name": "esanj/ms-package-recipient",
+    "name": "esanj/app-service",
     "description": "",
     "type": "library",
     "license": "MIT",
@@ -10,20 +10,20 @@
     ],
     "autoload": {
         "psr-4": {
-            "Esanj\\Recipient\\": "src/"
+            "Esanj\\AppService\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Esanj\\Recipient\\Providers\\RecipientServiceProvider"
+                "Esanj\\AppService\\Providers\\AppServiceProvider"
             ]
         }
     },
     "require": {
         "php": "^8.2|^8.3|^8.4",
         "illuminate/support": "^10.0|^11.0|^12.0",
-        "esanj/auth-bridge": "*"
+        "esanj/ms-package-managers": "^0.2.1"
     },
     "minimum-stability": "dev",
     "prefer-stable": true
