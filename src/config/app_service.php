@@ -2,6 +2,11 @@
 
 
 return [
+    "client_id" => env('APP_SERVICE_CLIENT_ID'),
+    "secret_client" => env('APP_SERVICE_SECRET'),
+    "accounting_base_url" => env('APP_SERVICE_ACCOUNTING_BASE_URL'),
+
+
     'routes' => [
         'web_prefix' => env('APP_SERVICE_WEB_PREFIX', '/admin'),
 
