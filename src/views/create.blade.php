@@ -6,7 +6,7 @@
 @section('content')
     <div class="layout-services">
         <h2>Add New Service</h2>
-        <form class="form-setting mt-2" action="{{route("app-service.store")}}" method="post">
+        <form class="form-setting mt-2" action="{{route("admin.services.store")}}" method="post">
             @csrf
             <div class="row ">
                 <div class="col-12">
