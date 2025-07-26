@@ -12,7 +12,8 @@ return new class extends Migration {
     {
         Schema::create('services', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('client_id')->unique()->index();
+            $table->string('name')->unique()->index();
+            $table->string('client_id');
             $table->boolean('is_active')->default(true);
             $table->longText('extra')->nullable();
 

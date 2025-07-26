@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix(config('app-service.routes.web_prefix') . '/app-services')
     ->middleware(['web', CheckAuthManagerMiddleware::class])
+    ->name('app-service.')
     ->group(function () {
         Route::resource('/', AppServiceController::class);
     });
