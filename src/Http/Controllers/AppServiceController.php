@@ -57,4 +57,17 @@ class AppServiceController extends BaseController
     {
         return view('app-service::edit', compact('service'));
     }
+
+    public function update(Request $request, Service $service)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:services,name,' . $service->id],
+            'client_id' => ['required', 'string', 'max:255'],
+            'is_active' => ['boolean'],
+        ]);
+
+        $service->update($request->only(['name', 'client_id', 'is_active']));
+
+        return redirect()->route('admin.services.edit', $service)->with('success', 'Service has been updated.');
+    }
 }
