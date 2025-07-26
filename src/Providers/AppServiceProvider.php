@@ -15,6 +15,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->registerViews();
         $this->registerRoutes();
+        $this->registerMigrations();
     }
 
     private function registerViews(): void
@@ -30,6 +31,11 @@ class AppServiceProvider extends ServiceProvider
     private function registerConfig(): void
     {
         $this->mergeConfigFrom($this->packagePath('config/app_service.php'), 'app-service');
+    }
+
+    private function registerMigrations(): void
+    {
+        $this->loadMigrationsFrom($this->packagePath('database/migrations'));
     }
 
     private function packagePath(string $path): string
