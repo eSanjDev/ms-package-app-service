@@ -1,0 +1,30 @@
+{
+    "name": "esanj/ms-package-recipient",
+    "description": "",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Esanj Team"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Esanj\\Recipient\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Esanj\\Recipient\\Providers\\RecipientServiceProvider"
+            ]
+        }
+    },
+    "require": {
+        "php": "^8.2|^8.3|^8.4",
+        "illuminate/support": "^10.0|^11.0|^12.0",
+        "esanj/auth-bridge": "*"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
