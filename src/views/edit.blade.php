@@ -1,5 +1,7 @@
 @extends('layouts.layoutMaster')
 
+@section('title', 'Edit Service')
+
 @section('page-style')
     <link rel="stylesheet" href="{{asset('/assets/vendor/app-service/css/style.css')}}">
 @endsection
@@ -39,7 +41,8 @@
                                 <select name="is_active" class="form-select select2">
                                     <option @selected(old('is_active',$service->is_active) == 0) value="0">deactive
                                     </option>
-                                    <option @selected(old('is_active',$service->is_active) == 1) value="1">Active</option>
+                                    <option @selected(old('is_active',$service->is_active) == 1) value="1">Active
+                                    </option>
                                 </select>
                             </div>
                             <div class="col-12 mb-3">
@@ -48,6 +51,13 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="row">
+                @foreach(config('app-service.extra_fields') as $field)
+                    <div class="col-12">
+                        @include($field)
+                    </div>
+                @endforeach
             </div>
         </form>
     </div>

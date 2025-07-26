@@ -30,4 +30,8 @@ return [
             'description' => 'Permission to delete an app service',
         ],
     ],
+
+    'extra_fields' => [
+        // Example: 'content.product' or 'app-service::product',
+    ]
 ];
