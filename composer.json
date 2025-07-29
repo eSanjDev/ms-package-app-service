@@ -1,6 +1,6 @@
 {
     "name": "esanj/app-service",
-    "description": "",
+    "description": "The **AppService** package is designed to facilitate connections to external services based on a provided client ID.",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -23,7 +23,7 @@
     "require": {
         "php": "^8.2|^8.3|^8.4",
         "illuminate/support": "^10.0|^11.0|^12.0",
-        "esanj/ms-package-managers": "^0.2.1"
+        "esanj/managers": "^0.2.1"
     },
     "minimum-stability": "dev",
     "prefer-stable": true
