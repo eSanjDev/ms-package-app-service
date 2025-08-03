@@ -10,4 +10,5 @@ Route::prefix(config('app-service.routes.api_prefix'))
     ->group(function () {
         Route::apiResource('/services', AppServiceApiController::class)->only(['index', 'destroy']);
         Route::post('/services/{id}/restore', [AppServiceApiController::class, 'restore']);
+        Route::get("/services/validation", [AppServiceApiController::class, 'validateClient']);
     });

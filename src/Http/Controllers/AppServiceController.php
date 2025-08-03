@@ -39,11 +39,6 @@ class AppServiceController extends BaseController
             'is_active' => ['boolean'],
         ]);
 
-        $getAccessToken = $this->oAuthService->getAccessToken();
-        if (!$getAccessToken['access_token']) {
-            throw new \Exception('Access token not found');
-        }
-
         $service = Service::create([
             'name' => $request->get('name'),
             'client_id' => $request->get('client_id'),

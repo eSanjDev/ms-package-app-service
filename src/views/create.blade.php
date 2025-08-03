@@ -6,6 +6,14 @@
     <link rel="stylesheet" href="{{asset('/assets/vendor/app-service/css/services.css')}}">
 @endsection
 
+@section('page-script')
+    <script>
+        window.baseUrlApiAdmin = "{{config('app-service.routes.api_prefix')}}"
+        window.baseUrlAdmin = "{{config('app-service.routes.web_prefix')}}"
+    </script>
+    <script src="{{asset('assets/vendor/app-service/js/service.js')}}"></script>
+@endsection
+
 @section('content')
     <div class="layout-services">
         <h2>Add New Service</h2>
@@ -30,7 +38,7 @@
                                     <input type="text" class="form-control" value="{{old('client_id')}}"
                                            placeholder="Enter Client Id" name="client_id" id="clientID"/>
                                     <label class="form-label">Client ID</label>
-                                    <button class="btn btn-validate" type="button">Validate</button>
+                                    <button class="btn btn-validate" type="button" id="validation-client">Validate</button>
                                 </div>
                                 @error('client_id')
                                 <div class="text-danger">{{ $message }}</div> @enderror
