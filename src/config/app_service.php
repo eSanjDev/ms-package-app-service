@@ -9,7 +9,7 @@ return [
 
     'routes' => [
         'web_prefix' => env('APP_SERVICE_WEB_PREFIX', '/admin'),
-
+        'api_prefix' => env('APP_SERVICE_API_PREFIX', '/api/v1/admin'),
     ],
 
     'permissions' => [

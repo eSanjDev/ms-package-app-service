@@ -38,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
     private function registerRoutes(): void
     {
         $this->loadRoutesFrom($this->packagePath('routes/web.php'));
+        $this->loadRoutesFrom($this->packagePath('routes/api.php'));
     }
 
     private function registerConfig(): void

@@ -3,12 +3,19 @@
 @section('title', 'Edit Service')
 
 @section('page-style')
-    <link rel="stylesheet" href="{{asset('/assets/vendor/app-service/css/style.css')}}">
+    <link rel="stylesheet" href="{{asset('/assets/vendor/app-service/css/services.css')}}">
 @endsection
+
 @section('content')
     <div class="layout-services">
         <h2>Edit Service</h2>
         <form class="form-setting mt-2" action="{{route("admin.services.update",$service->id)}}" method="post">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible" role="alert">
+                    {{session('success')}}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
             @csrf
             @method('put')
             <div class="row ">
@@ -45,6 +52,8 @@
                                     </option>
                                 </select>
                             </div>
+                        </div>
+                        <div class="row">
                             <div class="col-12 mb-3">
                                 <button class="btn btn-primary">Update Service</button>
                             </div>

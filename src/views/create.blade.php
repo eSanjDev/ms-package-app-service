@@ -1,8 +1,11 @@
 @extends('layouts.layoutMaster')
 
+@section("title",'Create New Service')
+
 @section('page-style')
-    <link rel="stylesheet" href="{{asset('/assets/vendor/app-service/css/style.css')}}">
+    <link rel="stylesheet" href="{{asset('/assets/vendor/app-service/css/services.css')}}">
 @endsection
+
 @section('content')
     <div class="layout-services">
         <h2>Add New Service</h2>
@@ -19,7 +22,8 @@
                                            placeholder="Enter Service Name" name="name"/>
                                     <label class="form-label">Name</label>
                                 </div>
-                                @error('name')<div class="text-danger">{{ $message }}</div> @enderror
+                                @error('name')
+                                <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-lg-4 mb-3">
                                 <div class="form-floating position-relative">
@@ -28,7 +32,8 @@
                                     <label class="form-label">Client ID</label>
                                     <button class="btn btn-validate" type="button">Validate</button>
                                 </div>
-                                @error('client_id')<div class="text-danger">{{ $message }}</div> @enderror
+                                @error('client_id')
+                                <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-lg-4 px-2 position-relative select-box mb-4">
                                 <label class="form-label" for="validationStatus">Status</label>
@@ -37,6 +42,8 @@
                                     <option @selected(old('is_active',1) == 1) value="1">Active</option>
                                 </select>
                             </div>
+                        </div>
+                        <div class="row">
                             <div class="col-12 mb-3">
                                 <button class="btn btn-primary">Create Service</button>
                             </div>
