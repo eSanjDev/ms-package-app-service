@@ -73,7 +73,7 @@
             <div class="row">
                 @foreach(config('app_service.extra_fields') as $field)
                     <div class="col-12">
-                        @include(\Illuminate\Support\Str::endsWith('.blade.php')?$field:"$field.blade.php")
+                        @include(\Illuminate\Support\Str::endsWith($field,'.blade.php')?$field:"$field.blade.php")
                     </div>
                 @endforeach
             </div>
