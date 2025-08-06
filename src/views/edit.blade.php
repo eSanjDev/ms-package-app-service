@@ -46,7 +46,8 @@
                                            value="{{old('client_id',$service->client_id)}}"
                                            placeholder="Enter Client Id" name="client_id" id="clientID"/>
                                     <label class="form-label">Client ID</label>
-                                    <button class="btn btn-validate" id="validation-client" type="button">Validate</button>
+                                    <button class="btn btn-validate" id="validation-client" type="button">Validate
+                                    </button>
                                 </div>
                                 @error('client_id')
                                 <div class="text-danger">{{ $message }}</div> @enderror
@@ -72,7 +73,7 @@
             <div class="row">
                 @foreach(config('app-service.extra_fields') as $field)
                     <div class="col-12">
-                        @include($field)
+                        @include(\Illuminate\Support\Str::endsWith('.blade.php')?$field:"$field.blade.php")
                     </div>
                 @endforeach
             </div>
