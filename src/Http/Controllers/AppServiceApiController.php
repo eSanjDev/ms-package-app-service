@@ -28,10 +28,10 @@ class AppServiceApiController extends BaseController
             $query = $query->whereNotNull('deleted_at')->withTrashed();
         }
 
-        if ($request->filled('serach')) {
+        if ($request->filled('search')) {
             $query = $query->where(function ($query) use ($request) {
-                return $query->where('name', 'like', '%' . $request->get('serach') . '%')
-                    ->orWhere('client_id', 'like', '%' . $request->get('serach') . '%');
+                return $query->where('name', 'like', '%' . $request->get('search') . '%')
+                    ->orWhere('client_id', 'like', '%' . $request->get('search') . '%');
             });
         }
 
@@ -79,7 +79,7 @@ class AppServiceApiController extends BaseController
         $response = Http::withToken($token['access_token'])->get($url);
 
         if ($response->failed()) {
-            return response()->json($response->json(),$response->status());
+            return response()->json($response->json(), $response->status());
         }
 
 

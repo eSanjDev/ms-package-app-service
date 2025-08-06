@@ -19,7 +19,7 @@ class ServiceListResource extends JsonResource
             'name' => $this->name,
             'client_id' => $this->client_id,
             'status' => $this->is_active,
-            'deleted_at' => $this->deleted_at
+            'deleted_at' => $this->deleted_at?->toDateTimeString(),
         ];
     }
 }

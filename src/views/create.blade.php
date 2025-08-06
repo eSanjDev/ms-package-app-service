@@ -3,7 +3,7 @@
 @section("title",'Create New Service')
 
 @section('page-style')
-    <link rel="stylesheet" href="{{asset('/assets/vendor/app-service/css/services.css')}}">
+    <link rel="stylesheet" href="{{asset('/assets/vendor/app-service/css/services-add-new.css')}}">
 @endsection
 
 @section('page-script')
@@ -17,7 +17,7 @@
 @section('content')
     <div class="layout-services">
         <h2>Add New Service</h2>
-        <form class="form-setting mt-2" action="{{route("admin.services.store")}}" method="post">
+        <form class="form-setting mt-2" action="{{route("services.store")}}" method="post">
             @csrf
             <div class="row ">
                 <div class="col-12">
@@ -44,16 +44,16 @@
                                 <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-lg-4 px-2 position-relative select-box mb-4">
-                                <label class="form-label" for="validationStatus">Status</label>
+                                <label class="form-label">Status</label>
                                 <select name="is_active" class="form-select select2">
-                                    <option @selected(old('is_active') == 0) value="0">deactive</option>
+                                    <option @selected(old('is_active') == 0) value="0">Deactive</option>
                                     <option @selected(old('is_active',1) == 1) value="1">Active</option>
                                 </select>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-12 mb-3">
-                                <button class="btn btn-primary">Create Service</button>
+                            <div class="col-12">
+                                <button class="btn btn-primary mt-3">Create Service</button>
                             </div>
                         </div>
                     </div>

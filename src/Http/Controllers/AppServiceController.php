@@ -45,7 +45,7 @@ class AppServiceController extends BaseController
             'is_active' => $request->get("is_active"),
         ]);
 
-        return redirect()->route('admin.services.edit', $service)->with('success', 'Service has been created.');
+        return redirect()->route('services.edit', $service)->with('success', 'Service has been created.');
     }
 
     public function edit(Service $service)
@@ -63,6 +63,6 @@ class AppServiceController extends BaseController
 
         $service->update($request->only(['name', 'client_id', 'is_active']));
 
-        return redirect()->route('admin.services.edit', $service)->with('success', 'Service has been updated.');
+        return redirect()->route('services.edit', $service)->with('success', 'Service has been updated.');
     }
 }

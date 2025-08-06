@@ -3,7 +3,7 @@
 @section('title', 'Edit Service')
 
 @section('page-style')
-    <link rel="stylesheet" href="{{asset('/assets/vendor/app-service/css/services.css')}}">
+    <link rel="stylesheet" href="{{asset('/assets/vendor/app-service/css/services-add-new.css')}}">
 @endsection
 
 @section('page-script')
@@ -17,7 +17,7 @@
 @section('content')
     <div class="layout-services">
         <h2>Edit Service</h2>
-        <form class="form-setting mt-2" action="{{route("admin.services.update",$service->id)}}" method="post">
+        <form class="form-setting mt-2" action="{{route("services.update",$service->id)}}" method="post">
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible" role="alert">
                     {{session('success')}}
