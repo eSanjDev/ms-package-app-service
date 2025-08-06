@@ -12,13 +12,13 @@ class AppServiceController extends BaseController
     public function __construct(protected OAuthService $oAuthService)
     {
         $this->middleware(CheckManagerPermissionMiddleware::class .
-            ":" . config('app-service.permissions.services.list'))->only('index');
+            ":" . config('app_service.permissions.services.list'))->only('index');
         $this->middleware(CheckManagerPermissionMiddleware::class .
-            ":" . config('app-service.permissions.services.create'))->only(['create', 'store']);
+            ":" . config('app_service.permissions.services.create'))->only(['create', 'store']);
         $this->middleware(CheckManagerPermissionMiddleware::class .
-            ":" . config('app-service.permissions.services.update'))->only(['edit', 'update']);
+            ":" . config('app_service.permissions.services.update'))->only(['edit', 'update']);
         $this->middleware(CheckManagerPermissionMiddleware::class .
-            ":" . config('app-service.permissions.services.delete'))->only('destroy');
+            ":" . config('app_service.permissions.services.delete'))->only('destroy');
     }
 
     public function index()
@@ -50,6 +50,7 @@ class AppServiceController extends BaseController
 
     public function edit(Service $service)
     {
+        dd(config('app_service'));
         return view('app-service::edit', compact('service'));
     }
 

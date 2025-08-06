@@ -4,7 +4,7 @@ use Esanj\AppService\Http\Controllers\AppServiceApiController;
 use Esanj\Manager\Http\Middleware\CheckAuthManagerMiddleware;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix(config('app-service.routes.api_prefix'))
+Route::prefix(config('app_service.routes.api_prefix'))
     ->middleware(['api', CheckAuthManagerMiddleware::class])
     ->group(function () {
         Route::apiResource('/services', AppServiceApiController::class)->only(['index', 'destroy']);

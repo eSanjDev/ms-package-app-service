@@ -24,7 +24,7 @@ class InstallCommand extends Command
 
         // Load the permissions from the config file
         config([
-            'manager.permissions' => config('app-service.permissions'),
+            'manager.permissions' => config('app_service.permissions'),
         ]);
         $this->call('manager:permissions-import');
 

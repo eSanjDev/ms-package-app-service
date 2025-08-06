@@ -16,7 +16,7 @@ class AppServiceApiController extends BaseController
     public function __construct(protected OAuthService $oAuthService)
     {
         $this->middleware(CheckManagerPermissionMiddleware::class .
-            ":" . config('app-service.permissions.services.list'))->only('index');
+            ":" . config('app_service.permissions.services.list'))->only('index');
     }
 
     public function index(Request $request)
@@ -74,7 +74,7 @@ class AppServiceApiController extends BaseController
             throw new RuntimeException('Access token not found');
         }
 
-        $url = config('app-service.accounting_base_url') . "/api/application/clients/{$clientId}";
+        $url = config('app_service.accounting_base_url') . "/api/application/clients/{$clientId}";
 
         $response = Http::withToken($token['access_token'])->get($url);
 

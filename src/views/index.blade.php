@@ -17,8 +17,8 @@
 
 @section('page-script')
     <script>
-        window.baseUrlApiAdmin = "{{config('app-service.routes.api_prefix')}}"
-        window.baseUrlAdmin = "{{config('app-service.routes.web_prefix')}}"
+        window.baseUrlApiAdmin = "{{config('app_service.routes.api_prefix')}}"
+        window.baseUrlAdmin = "{{config('app_service.routes.web_prefix')}}"
         @if(request()->filled('only_trash'))
             window.only_trash = 1;
         @endif

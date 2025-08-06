@@ -8,8 +8,8 @@
 
 @section('page-script')
     <script>
-        window.baseUrlApiAdmin = "{{config('app-service.routes.api_prefix')}}"
-        window.baseUrlAdmin = "{{config('app-service.routes.web_prefix')}}"
+        window.baseUrlApiAdmin = "{{config('app_service.routes.api_prefix')}}"
+        window.baseUrlAdmin = "{{config('app_service.routes.web_prefix')}}"
     </script>
     <script src="{{asset('assets/vendor/app-service/js/service.js')}}"></script>
 @endsection
@@ -71,7 +71,7 @@
                 </div>
             </div>
             <div class="row">
-                @foreach(config('app-service.extra_fields') as $field)
+                @foreach(config('app_service.extra_fields') as $field)
                     <div class="col-12">
                         @include(\Illuminate\Support\Str::endsWith('.blade.php')?$field:"$field.blade.php")
                     </div>

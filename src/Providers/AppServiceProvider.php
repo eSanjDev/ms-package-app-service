@@ -43,7 +43,7 @@ class AppServiceProvider extends ServiceProvider
 
     private function registerConfig(): void
     {
-        $this->mergeConfigFrom($this->packagePath('config/app_service.php'), 'app-service');
+        $this->mergeConfigFrom($this->packagePath('config/app_service.php'), 'app_service');
     }
 
     private function registerMigrations(): void
