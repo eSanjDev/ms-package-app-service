@@ -20,7 +20,7 @@ class Service extends Model
         return $this->meta->where('key', $key)->value('value');
     }
 
-    public function meta(): HasMany
+    public function meta()
     {
         return $this->hasMany(ServiceMeta::class);
     }

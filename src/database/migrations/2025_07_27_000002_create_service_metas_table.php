@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('service_meta', function (Blueprint $table) {
+        Schema::create('service_metas', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->foreignId('service_id')->constrained('services')->cascadeOnDelete();
             $table->string('key')->index();
@@ -27,6 +27,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('service_meta');
+        Schema::dropIfExists('service_metas');
     }
 };
