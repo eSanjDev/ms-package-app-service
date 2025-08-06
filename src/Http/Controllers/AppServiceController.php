@@ -50,7 +50,6 @@ class AppServiceController extends BaseController
 
     public function edit(Service $service)
     {
-        dd(config('app_service'));
         return view('app-service::edit', compact('service'));
     }
 
