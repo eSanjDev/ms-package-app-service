@@ -11,7 +11,7 @@ class ServiceService
     {
     }
 
-    public function getClientDeteils(string $client_id)
+    public function getClientDetails(string $client_id)
     {
         $token = $this->oauthService->getAccessToken();
 

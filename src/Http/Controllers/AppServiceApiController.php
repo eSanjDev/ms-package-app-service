@@ -66,6 +66,6 @@ class AppServiceApiController extends BaseController
             throw new RuntimeException('Client ID is required');
         }
 
-        return $this->service->getClientDeteils($clientId);
+        return $this->service->getClientDetails($clientId);
     }
 }
