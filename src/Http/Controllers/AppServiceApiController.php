@@ -6,16 +6,14 @@ use Esanj\AppService\Http\Resources\ServiceListResource;
 use Esanj\AppService\Model\Service;
 use Esanj\AppService\Services\OAuthService;
 use Esanj\AppService\Services\ServiceService;
-use Esanj\Manager\Http\Middleware\CheckManagerPermissionMiddleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 
 class AppServiceApiController extends BaseController
 {
     public function __construct(protected OAuthService $oAuthService, protected ServiceService $service)
     {
-        $this->middleware(CheckManagerPermissionMiddleware::class .
-            ":" . config('app_service.permissions.services.list'))->only('index');
     }
 
     public function index(Request $request)
@@ -42,6 +40,63 @@ class AppServiceApiController extends BaseController
                 ->response()
                 ->getData(true)
         );
+    }
+
+    public function show(Service $service)
+    {
+        return response()->json([
+            'data' => new ServiceListResource($service)
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $rules = [
+            'name' => ['required', 'string', 'max:255', 'unique:services,name'],
+            'client_id' => ['required', 'string', 'max:255'],
+            'is_active' => ['boolean'],
+        ];
+        $validations = Validator::make($request->all(), $rules);
+        if ($validations->fails()) {
+            return response()->json([
+                "message" => $validations->getMessageBag()->first(),
+                'errors' => $validations->errors(),
+            ], 422);
+        }
+
+        $service = Service::create([
+            'name' => $request->get('name'),
+            'client_id' => $request->get('client_id'),
+            'is_active' => $request->get("is_active"),
+        ]);
+
+        return response()->json([
+            'data' => new ServiceListResource($service),
+            'message' => 'Service has been created.'
+        ], 201);
+    }
+
+    public function update(Request $request, Service $service)
+    {
+        $rules = [
+            'name' => ['required', 'string', 'max:255', 'unique:services,name,' . $service->id],
+            'client_id' => ['required', 'string', 'max:255'],
+            'is_active' => ['boolean'],
+        ];
+        $validations = Validator::make($request->all(), $rules);
+        if ($validations->fails()) {
+            return response()->json([
+                "message" => $validations->getMessageBag()->first(),
+                'errors' => $validations->errors(),
+            ], 422);
+        }
+
+        $service->update($request->only(['name', 'client_id', 'is_active']));
+
+        return response()->json([
+            'data' => new ServiceListResource($service),
+            'message' => 'Service has been updated.'
+        ]);
     }
 
     public function destroy(Service $service)

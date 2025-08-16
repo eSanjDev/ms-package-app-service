@@ -12,6 +12,15 @@ return [
         'api_prefix' => env('APP_SERVICE_API_PREFIX', '/api/v1/admin'),
     ],
 
+    'middlewares' => [
+        'api' => [
+            'api',
+        ],
+        'web' => [
+            'web',
+        ],
+    ],
+
     'permissions' => [
         'services.list' => [
             'display_name' => 'List App Services',
