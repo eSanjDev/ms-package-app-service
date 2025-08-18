@@ -12,13 +12,13 @@ class AppServiceController extends BaseController
     public function __construct(protected OAuthService $oAuthService)
     {
         $this->middleware(CheckManagerPermissionMiddleware::class .
-            ":" . config('app_service.permissions.services.list'))->only('index');
+            ":" . config('esanj.app_service.permissions.services.list'))->only('index');
         $this->middleware(CheckManagerPermissionMiddleware::class .
-            ":" . config('app_service.permissions.services.create'))->only(['create', 'store']);
+            ":" . config('esanj.app_service.permissions.services.create'))->only(['create', 'store']);
         $this->middleware(CheckManagerPermissionMiddleware::class .
-            ":" . config('app_service.permissions.services.update'))->only(['edit', 'update']);
+            ":" . config('esanj.app_service.permissions.services.update'))->only(['edit', 'update']);
         $this->middleware(CheckManagerPermissionMiddleware::class .
-            ":" . config('app_service.permissions.services.delete'))->only('destroy');
+            ":" . config('esanj.app_service.permissions.services.delete'))->only('destroy');
     }
 
     public function index()

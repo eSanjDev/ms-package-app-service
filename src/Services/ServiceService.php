@@ -19,7 +19,7 @@ class ServiceService
             throw new RuntimeException('Access token not found');
         }
 
-        $url = config('app_service.accounting_base_url') . "/api/application/clients/{$client_id}";
+        $url = config('esanj.app_service.accounting_base_url') . "/api/application/clients/{$client_id}";
 
         $response = Http::withToken($token['access_token'])->get($url);
 

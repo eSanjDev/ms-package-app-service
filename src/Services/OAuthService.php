@@ -17,10 +17,10 @@ class OAuthService
         }
 
         // Request a new token from the Accounting microservice
-        $response = Http::asForm()->post(config('app_service.accounting_base_url') . '/oauth/token', [
+        $response = Http::asForm()->post(config('esanj.app_service.accounting_base_url') . '/oauth/token', [
             'grant_type' => 'client_credentials',
-            'client_id' => config('app_service.client_id'),
-            'client_secret' => config('app_service.secret_client'),
+            'client_id' => config('esanj.app_service.client_id'),
+            'client_secret' => config('esanj.app_service.secret_client'),
             'scope' => '*',
         ]);
 

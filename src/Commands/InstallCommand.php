@@ -15,7 +15,7 @@ class InstallCommand extends Command
         $this->info('Publishing configuration...');
         $this->call('vendor:publish', [
             '--provider' => "Esanj\\AppService\\Providers\\AppServiceProvider",
-            '--tag' => ['app-service-assets', 'app-service-config'],
+            '--tag' => ['esanj-app-service-assets', 'esanj-app-service-config'],
             '--force' => true,
         ]);
 
@@ -24,7 +24,7 @@ class InstallCommand extends Command
 
         // Load the permissions from the config file
         config([
-            'manager.permissions' => config('app_service.permissions'),
+            'manager.permissions' => config('esanj.app_service.permissions'),
         ]);
         $this->call('manager:permissions-import');
 

@@ -43,7 +43,7 @@ class AppServiceProvider extends ServiceProvider
 
     private function registerConfig(): void
     {
-        $this->mergeConfigFrom($this->packagePath('config/app_service.php'), 'app_service');
+        $this->mergeConfigFrom($this->packagePath('config/app_service.php'), 'esanj.app_service');
     }
 
     private function registerMigrations(): void
@@ -56,19 +56,19 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 $this->packagePath('assets') => public_path('assets/vendor/app-service'),
-            ], 'app-service-assets');
+            ], 'esanj-app-service-assets');
 
             $this->publishes([
-                $this->packagePath('config/app_service.php') => config_path('app_service.php'),
-            ], 'app-service-config');
+                $this->packagePath('config/app_service.php') => config_path('esanj/app_service.php'),
+            ], 'esanj-app-service-config');
 
             $this->publishes([
                 $this->packagePath('views') => resource_path('views/vendor/app-service'),
-            ], 'app-service-views');
+            ], 'esanj-app-service-views');
 
             $this->publishes([
                 $this->packagePath('database/migrations/') => database_path('migrations'),
-            ], 'app-service-migrations');
+            ], 'esanj-app-service-migrations');
         }
     }
 
