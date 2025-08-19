@@ -20,7 +20,11 @@ class InstallCommand extends Command
         ]);
 
         $this->info('Running migrations...');
-        $this->call('migrate');
+
+        if ($this->confirm('Should migrations be performed?')) {
+            $this->call('migrate');
+        }
+
 
         // Load the permissions from the config file
         config([
