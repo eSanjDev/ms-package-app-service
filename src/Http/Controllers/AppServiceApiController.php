@@ -4,7 +4,6 @@ namespace Esanj\AppService\Http\Controllers;
 
 use Esanj\AppService\Http\Resources\ServiceListResource;
 use Esanj\AppService\Model\Service;
-use Esanj\AppService\Services\OAuthService;
 use Esanj\AppService\Services\ServiceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -12,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 class AppServiceApiController extends BaseController
 {
-    public function __construct(protected OAuthService $oAuthService, protected ServiceService $service)
+    public function __construct(protected ServiceService $service)
     {
     }
 

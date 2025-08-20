@@ -3,13 +3,12 @@
 namespace Esanj\AppService\Http\Controllers;
 
 use Esanj\AppService\Model\Service;
-use Esanj\AppService\Services\OAuthService;
 use Esanj\Manager\Http\Middleware\CheckManagerPermissionMiddleware;
 use Illuminate\Http\Request;
 
 class AppServiceController extends BaseController
 {
-    public function __construct(protected OAuthService $oAuthService)
+    public function __construct()
     {
         $this->middleware(CheckManagerPermissionMiddleware::class .
             ":" . config('esanj.app_service.permissions.services.list'))->only('index');
