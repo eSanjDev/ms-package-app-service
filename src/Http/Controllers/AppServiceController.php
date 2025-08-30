@@ -10,14 +10,10 @@ class AppServiceController extends BaseController
 {
     public function __construct()
     {
-        $this->middleware(CheckManagerPermissionMiddleware::class .
-            ":" . config('esanj.app_service.permissions.services.list'))->only('index');
-        $this->middleware(CheckManagerPermissionMiddleware::class .
-            ":" . config('esanj.app_service.permissions.services.create'))->only(['create', 'store']);
-        $this->middleware(CheckManagerPermissionMiddleware::class .
-            ":" . config('esanj.app_service.permissions.services.update'))->only(['edit', 'update']);
-        $this->middleware(CheckManagerPermissionMiddleware::class .
-            ":" . config('esanj.app_service.permissions.services.delete'))->only('destroy');
+        $this->middleware(CheckManagerPermissionMiddleware::class . ":services.list")->only('index');
+        $this->middleware(CheckManagerPermissionMiddleware::class . ":services.create")->only(['create', 'store']);
+        $this->middleware(CheckManagerPermissionMiddleware::class . ":services.update")->only(['edit', 'update']);
+        $this->middleware(CheckManagerPermissionMiddleware::class . ":services.delete")->only('destroy');
     }
 
     public function index()
