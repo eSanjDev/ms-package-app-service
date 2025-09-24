@@ -20,7 +20,7 @@ define service names, client IDs, and manage metadata and access control easily 
 
 - PHP +8.2
 - Laravel 10.0|11.0|12.0
-- esanj/managers 0.2.x
+- esanj/managers 0.3.x
 
 ---
 
