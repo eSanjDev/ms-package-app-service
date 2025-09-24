@@ -32,12 +32,17 @@ class AppServiceProvider extends ServiceProvider
 
     private function registerViews(): void
     {
-        $this->loadViewsFrom($this->packagePath('views'), 'app-service');
+        if (!config('esanj.app_service.just_api')) {
+            $this->loadViewsFrom($this->packagePath('views'), 'app-service');
+        }
     }
 
     private function registerRoutes(): void
     {
-        $this->loadRoutesFrom($this->packagePath('routes/web.php'));
+        if (!config('esanj.app_service.just_api')) {
+            $this->loadRoutesFrom($this->packagePath('routes/web.php'));
+        }
+
         $this->loadRoutesFrom($this->packagePath('routes/api.php'));
     }
 
