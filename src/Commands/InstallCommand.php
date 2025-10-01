@@ -28,7 +28,7 @@ class InstallCommand extends Command
 
         // Load the permissions from the config file
         config([
-            'manager.permissions' => config('esanj.app_service.permissions'),
+            'esanj.manager.permissions' => config('esanj.app_service.permissions'),
         ]);
         $this->call('manager:permissions-import');
 
