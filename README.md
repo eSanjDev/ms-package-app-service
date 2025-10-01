@@ -29,7 +29,7 @@ define service names, client IDs, and manage metadata and access control easily 
 You can install the package via Composer:
 
 ```bash
-composer require esanjdev/ms-package-app-service
+composer require esanj/app-service
 ```
 
 Then publish the config & migration files:
