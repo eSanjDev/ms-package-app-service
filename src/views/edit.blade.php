@@ -61,7 +61,38 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row">
+
+                    <div class="row mt-5">
+                        <h3 class="mb-5">Permissions</h3>
+                        <div class="col-12">
+                            @error('permissions')
+                            <div class="text-danger">{{ $message }}</div> @enderror
+                            <div class="table-responsive">
+                                <table class="table table-flush-spacing">
+                                    <tbody>
+                                    @foreach($permissions as $index => $groups)
+                                        @foreach($groups as $key => $name)
+                                            <tr>
+                                                <td class="text-nowrap fw-medium text-heading">{{$name}}</td>
+                                                <td>
+                                                    <div class="d-flex justify-content-evenly">
+                                                        <div class="form-check mb-0 ">
+                                                            <input class="form-check-input" name="permissions[]"
+                                                                   @checked(in_array($key,$servicePermissions)) type="checkbox"
+                                                                   value="{{$key}}" id="permission-{{$key}}">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-5">
                         <div class="col-12 mb-3">
                             <button class="btn btn-primary">Update Service</button>
                         </div>

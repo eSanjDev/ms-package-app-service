@@ -2,7 +2,10 @@
 
 namespace Esanj\AppService\Providers;
 
+use Esanj\AppService\Commands\ImportPermissionsCommand;
 use Esanj\AppService\Commands\InstallCommand;
+use Esanj\AppService\Http\Middleware\EnsureServicePermission;
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +22,15 @@ class AppServiceProvider extends ServiceProvider
         $this->registerRoutes();
         $this->registerMigrations();
         $this->registerPublishing();
+        $this->registerMigrations();
+        $this->registerMiddleware();
+    }
+
+    private function registerMiddleware(): void
+    {
+        $router = app(Router::class);
+
+        $router->aliasMiddleware('service.permission', EnsureServicePermission::class);
     }
 
     private function registerCommands(): void
@@ -26,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 InstallCommand::class,
+                ImportPermissionsCommand::class,
             ]);
         }
     }

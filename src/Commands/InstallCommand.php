@@ -23,6 +23,8 @@ class InstallCommand extends Command
 
         if ($this->confirm('Should migrations be performed?')) {
             $this->call('migrate');
+
+            $this->call('app-service:permissions-import');
         }
 
 

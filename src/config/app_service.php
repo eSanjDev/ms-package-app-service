@@ -37,6 +37,34 @@ return [
         ],
     ],
 
+    'service_permissions' => [
+        'transactions.list' => [
+            'display_name' => 'List Transactions',
+            'description' => 'Allows viewing the list of all transactions for the service',
+        ],
+
+        'transactions.view' => [
+            'display_name' => 'View Transaction Details',
+            'description' => 'Allows viewing detailed information of a single transaction',
+        ],
+
+        'transactions.create' => [
+            'display_name' => 'Create Transaction',
+            'description' => 'Allows creating new transactions within the service',
+        ],
+
+        'transactions.update' => [
+            'display_name' => 'Update Transaction',
+            'description' => 'Allows updating existing transaction information for the service',
+        ],
+
+        'transactions.delete' => [
+            'display_name' => 'Delete Transaction',
+            'description' => 'Allows deleting transactions from the service',
+        ],
+    ],
+
+
     'extra_fields' => [
         // Example: 'content.product' or 'app-service::product',
     ]
