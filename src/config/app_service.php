@@ -1,10 +1,6 @@
 <?php
 
 
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Session\Middleware\StartSession;
-
 return [
     'routes' => [
         'web_prefix' => env('APP_SERVICE_WEB_PREFIX', '/admin'),
@@ -15,14 +11,10 @@ return [
 
     'middlewares' => [
         'api' => [
-            EncryptCookies::class,
-            AddQueuedCookiesToResponse::class,
-            StartSession::class,
-            'api',
-            'auth.api',
+            'manager.auth:api',
         ],
         'web' => [
-            'web',
+            'manager.auth:web',
         ],
     ],
 
