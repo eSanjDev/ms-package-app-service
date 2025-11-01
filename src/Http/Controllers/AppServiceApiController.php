@@ -13,6 +13,11 @@ class AppServiceApiController extends BaseController
 {
     public function __construct(protected ServiceService $service)
     {
+        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.list'))->only(['index', 'show']);
+        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.store'))->only(['store']);
+        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.update'))->only(['update']);
+        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.delete'))->only(['destroy']);
+        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.restore'))->only(['restore']);
     }
 
     public function index(Request $request)

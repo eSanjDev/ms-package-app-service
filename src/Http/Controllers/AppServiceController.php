@@ -4,7 +4,6 @@ namespace Esanj\AppService\Http\Controllers;
 
 use Esanj\AppService\Model\Service;
 use Esanj\AppService\Model\ServicePermission;
-use Esanj\Manager\Http\Middleware\CheckManagerPermissionMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -12,10 +11,9 @@ class AppServiceController extends BaseController
 {
     public function __construct()
     {
-        $this->middleware(CheckManagerPermissionMiddleware::class . ":services.list")->only('index');
-        $this->middleware(CheckManagerPermissionMiddleware::class . ":services.create")->only(['create', 'store']);
-        $this->middleware(CheckManagerPermissionMiddleware::class . ":services.update")->only(['edit', 'update']);
-        $this->middleware(CheckManagerPermissionMiddleware::class . ":services.delete")->only('destroy');
+        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.list'))->only(['index']);
+        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.store'))->only(['create', 'store']);
+        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.update'))->only(['edit', 'update']);
     }
 
     public function index()

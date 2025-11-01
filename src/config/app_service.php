@@ -64,6 +64,13 @@ return [
         ],
     ],
 
+    "access_provider" => [
+        'list' => 'managers.list',
+        'store' => 'managers.create',
+        'update' => 'managers.edit',
+        'delete' => 'managers.delete',
+        'restore' => 'managers.delete',
+    ],
 
     'extra_fields' => [
         // Example: 'content.product' or 'app-service::product',
