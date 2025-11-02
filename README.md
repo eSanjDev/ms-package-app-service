@@ -1,104 +1,151 @@
-# 📡 Laravel App Service Package
+# Esanj App Service
 
-This package helps you manage application-level services in a microservice architecture using Laravel. It lets users
-define service names, client IDs, and manage metadata and access control easily via config & UI.
-
----
-
-## ⚙️ Features
-
-✅ Create and manage services from within your microservice  
-✅ Validate service client IDs via Accounting microservice  
-✅ Flexible service meta fields via config  
-✅ Define route middlewares for custom access control  
-✅ Built-in support for SOLID principles  
-✅ Optional configuration and customization via config file
+The **App Service** package is part of the Esanj microservice ecosystem.  
+It provides centralized management, permission handling, and connectivity between different services in your
+Laravel-based projects.
 
 ---
 
-## 📦 Requirements
+## 🧩 Features
 
-- PHP +8.2
-- Laravel 10.0|11.0|12.0
-- esanj/managers 0.3.x
+- Service registration, listing, updating, and deletion via UI or API.
+- Permission management per service.
+- Extendable configuration to add custom fields and permissions.
+- Built-in middleware for permission checks.
+- Works seamlessly with **esanj/managers** and **esanj/layout-master** packages.
 
 ---
 
-## 🛠 Installation
+## ⚙️ Requirements
 
-You can install the package via Composer:
+- **PHP**: >= 8.2
+- **Laravel**: >= 12.x
+- Dependencies:
+    - `esanj/managers`
+    - `esanj/layout-master`
+
+---
+
+## 🚀 Installation
+
+Run the following commands in your Laravel project:
+
+#### Step 1:
 
 ```bash
 composer require esanj/app-service
 ```
 
-Then publish the config & migration files:
+#### Step 2:
 
 ```bash
 php artisan app-service:install
 ```
 
+The install command will automatically publish static assets and configuration files.
+
 ---
 
-## ⚙️ Configuration
+## 🖥️ UI Usage
 
-🔧 Update published config file:
+After installation, you can access the service management interface via:
 
+Route name: ```route('services.index')```
+
+Direct URL: ```/{web_prefix}/services```
+
+From this interface, you can:
+
+* View the list of services
+* Create new services
+* Edit existing services
+* Delete services
+
+## 🔗 API Endpoints
+
+The package also exposes a set of RESTful API endpoints for managing services.
+
+All API requests must include a valid token, which can be obtained via the Manager package.
+
+| Method     | URI                       | Description / Behavior     |
+|:-----------|:--------------------------|:---------------------------|
+| **GET**    | `/{prefix}/services`      | List all services          |
+| **POST**   | `/{prefix}/services`      | Create a new service       |
+| **PUT**    | `/{prefix}/services/{id}` | Update an existing service |
+| **DELETE** | `/{prefix}/services/{id}` | Delete a service           |
+
+---
+
+## 🧠 Configuration
+
+You can extend the service edit page by adding extra fields.
+
+Simply include the path to your custom Blade components inside the configuration file:
+
+```php
+'extra_fields' => [
+    'page.contents.price.',
+],
 ```
-config/esanj/app-service.php
+
+## 🔐 Service Permissions
+
+Define service-specific permissions in your configuration file as follows:
+
+```php
+'service_permissions' => [
+     'transactions.list' => [
+         'display_name' => 'List Transactions',
+         'description'  => 'Allows viewing the list of all transactions for the service',
+     ],
+     'transactions.view' => [
+         'display_name' => 'View Transaction Details',
+         'description'  => 'Allows viewing detailed information of a single transaction',
+     ],
+     'transactions.create' => [
+         'display_name' => 'Create Transaction',
+         'description'  => 'Allows creating new transactions within the service',
+     ],
+     'transactions.update' => [
+         'display_name' => 'Update Transaction',
+         'description'  => 'Allows updating existing transaction information for the service',
+     ],
+     'transactions.delete' => [
+        'display_name' => 'Delete Transaction',
+        'description'  => 'Allows deleting transactions from the service',
+     ],
+],
 ```
 
-    'permissions' => [
-         'services.list' => [
-            'display_name' => 'List App Services',
-            'description' => 'Permission to list all app services',
-        ],
-    ],
+Then, run the following command to import permissions into the database:
 
-    'middleware' => [
-        'web' => ['web', ...],
-        'api' => ['api', ...],
-    ],
+```bash
+php artisan app-service:permissions-import
+```
 
-    'extra_fields' => [
-        'content.product',
-        ...
-    ],
+## ⚡ Middleware Permission Check
 
-## 🌐 Usage
+To check a service’s permissions, use the built-in middleware:
 
-To access the user interface (UI) for managing services:
+```php
+service.permission:{permission}
+```
 
-🔗 Use the named route services.index:
+If the service does not have the required permission, an appropriate error response will be returned.
 
-`route('services.index')`
+Example:
 
-or just visit this path on your app:
+```php
+Route::get('/transactions', [TransactionController::class, 'index'])->middleware('service.permission:transactions.list');
+```
 
-`/{web_prefix}/services`
+## 🌐 API-Only Mode
+If your project only uses APIs and has no need for the UI, you can enable API-only mode by setting:
 
-From this panel you can:
+```php
+'just_api' => env('APP_SERVICE_JUST_API', false)
+```
+This disables all UI routes while keeping the full API functionality intact.
 
-- 🆕 Create new services
-- 📡 Validate external client_id (via accounting microservice)
-- 🗂 Manage dynamic metadata fields
-- 📝 Edit or delete services
--
-
-☝️ Make sure your middleware and permissions are properly configured in the config file.
-
-## 📡 API Usage
-
-Available endpoints:
-
-Method Endpoint Description
-
-- GET `/api/v1/admin/services` List services
-- POST `/api/v1/admin/services` Create a new service
-- PUT `/api/v1/admin/services/{id}` Update a service
-- DELETE `/api/v1/admin/services/{id}` Delete a service
-
-➡️ All routes are protected with middleware defined under config.
-
-## 📜 License
-MIT © eSanjDev
+## 🪪 License
+This package is part of the Esanj ecosystem and is intended for internal or authorized use within Esanj-based projects.

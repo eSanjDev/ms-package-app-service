@@ -3,8 +3,8 @@
 
 return [
     'routes' => [
-        'web_prefix' => env('APP_SERVICE_WEB_PREFIX', '/admin'),
-        'api_prefix' => env('APP_SERVICE_API_PREFIX', '/api/v1/admin'),
+        'web_prefix' => env('APP_SERVICE_WEB_PREFIX', 'admin'),
+        'api_prefix' => env('APP_SERVICE_API_PREFIX', 'api'),
     ],
 
     'just_api' => env('APP_SERVICE_JUST_API', false),
@@ -65,11 +65,11 @@ return [
     ],
 
     "access_provider" => [
-        'list' => 'managers.list',
-        'store' => 'managers.create',
-        'update' => 'managers.edit',
-        'delete' => 'managers.delete',
-        'restore' => 'managers.delete',
+        'list' => 'services.list',
+        'store' => 'services.create',
+        'update' => 'services.edit',
+        'delete' => 'services.delete',
+        'restore' => 'services.delete',
     ],
 
     'extra_fields' => [
