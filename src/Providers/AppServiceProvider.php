@@ -5,6 +5,7 @@ namespace Esanj\AppService\Providers;
 use Esanj\AppService\Commands\ImportPermissionsCommand;
 use Esanj\AppService\Commands\InstallCommand;
 use Esanj\AppService\Http\Middleware\EnsureServicePermission;
+use Esanj\AppService\Http\Middleware\ValidateJwtMiddleware;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 
@@ -31,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
         $router = app(Router::class);
 
         $router->aliasMiddleware('service.permission', EnsureServicePermission::class);
+        $router->aliasMiddleware('service.validation', ValidateJwtMiddleware::class);
     }
 
     private function registerCommands(): void

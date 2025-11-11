@@ -139,6 +139,26 @@ Example:
 Route::get('/transactions', [TransactionController::class, 'index'])->middleware('service.permission:transactions.list');
 ```
 
+## 🧩 Middleware Token Validation
+The middleware with alias `service.validation` is used to validate incoming JWT tokens.
+
+If the token is valid, its `client_id` value will be attached to the request as the attribute `jwt_client_id`.
+
+If the token is invalid or expired, an appropriate error response with status code 401 Unauthorized will be returned.
+
+Example:
+
+```php
+Route::get('/transactions', [TransactionController::class, 'index'])
+->middleware(['service.validation', 'service.permission:transactions.list']);
+```
+
+The Authorization header must contain the token in the format:Bearer {token}
+
+On successful validation, the middleware extracts the client_id from the token payload and attaches it to the request object.
+
+If the token is missing, invalid, or expired, a JSON response with an error message and HTTP 401 status is returned.
+
 ## 🌐 API-Only Mode
 If your project only uses APIs and has no need for the UI, you can enable API-only mode by setting:
 

@@ -3,7 +3,12 @@
 namespace Esanj\AppService\Services;
 
 use Esanj\AuthBridge\Services\ClientCredentialsService;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use PHPUnit\Runner\FileDoesNotExistException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class ServiceService
 {
@@ -32,5 +37,24 @@ class ServiceService
 
 
         return $response;
+    }
+
+    public function decodeJWT(string $token)
+    {
+        try {
+            $publicKeyPath = config('esanj.manager.public_key_path');
+
+            if (!file_exists($publicKeyPath)) {
+                Log::error('EnsureServicePermission: Public key file not found.');
+                throw new FileDoesNotExistException('Public key file not found.');
+            }
+
+            $publicKey = file_get_contents($publicKeyPath);
+            return JWT::decode($token, new Key($publicKey, 'RS256'));
+
+        } catch (Exception $e) {
+            Log::error('JWT validation error: ' . $e->getMessage());
+            throw new UnauthorizedHttpException('Bearer Token', 'Invalid token or signature.');
+        }
     }
 }

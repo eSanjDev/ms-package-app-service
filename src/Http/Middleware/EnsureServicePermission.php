@@ -4,9 +4,8 @@ namespace Esanj\AppService\Http\Middleware;
 
 use Closure;
 use Esanj\AppService\Model\Service;
+use Esanj\AppService\Services\ServiceService;
 use Exception;
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,20 +25,10 @@ class EnsureServicePermission
         }
 
         try {
-            $publicKeyPath = config('esanj.manager.public_key_path');
-
-            if (!file_exists($publicKeyPath)) {
-                Log::error('EnsureServicePermission: Public key file not found.');
-                return $this->deny(__('Public key is not configured.'));
-            }
-
-            $publicKey = file_get_contents($publicKeyPath);
-            $decoded = JWT::decode($token, new Key($publicKey, 'RS256'));
+            $decoded = app(ServiceService::class)->decodeJWT($token);
 
             /** @var Service|null $service */
-            $service = Service::query()
-                ->where('client_id', $decoded->aud ?? null)
-                ->first();
+            $service = Service::query()->where('client_id', $decoded->aud ?? null)->first();
 
             if (!$service) {
                 Log::warning('EnsureServicePermission: Unknown service client_id', [
