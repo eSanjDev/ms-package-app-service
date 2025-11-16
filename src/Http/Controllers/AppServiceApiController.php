@@ -7,6 +7,7 @@ use Esanj\AppService\Model\Service;
 use Esanj\AppService\Services\ServiceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use RuntimeException;
 
 
 class AppServiceApiController extends BaseController
