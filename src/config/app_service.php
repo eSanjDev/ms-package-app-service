@@ -11,9 +11,11 @@ return [
 
     'middlewares' => [
         'api' => [
+            'api',
             'manager.auth:api',
         ],
         'web' => [
+            'web',
             'manager.auth:web',
         ],
     ],

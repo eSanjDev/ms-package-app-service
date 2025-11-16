@@ -5,7 +5,8 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::prefix(config('esanj.app_service.routes.web_prefix'))
-    ->middleware(array_merge(['web'], config('esanj.app_service.middlewares.web')))
+    ->middleware(config('esanj.app_service.middlewares.web'))
     ->group(function () {
-        Route::resource('/services', AppServiceController::class)->except(['destroy', 'show']);
+        Route::resource('/services', AppServiceController::class)->except(['show']);
+        Route::post('/services/{id}/restore', [AppServiceController::class, 'restore'])->name('services.restore');
     });

@@ -20,23 +20,9 @@ class AppServiceApiController extends BaseController
         $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.restore'))->only(['restore']);
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $query = Service::query();
-
-
-        if ($request->filled('only_trash') && $request->get('only_trash') == 1) {
-            $query = $query->whereNotNull('deleted_at')->withTrashed();
-        }
-
-        if ($request->filled('search')) {
-            $query = $query->where(function ($query) use ($request) {
-                return $query->where('name', 'like', '%' . $request->get('search') . '%')
-                    ->orWhere('client_id', 'like', '%' . $request->get('search') . '%');
-            });
-        }
-
-        $query = $query->paginate($request->get('per_page', 10));
+        $query = $this->service->getServicesWithPaginate();
 
         return response()->json(
             ServiceListResource::collection($query)
@@ -105,16 +91,16 @@ class AppServiceApiController extends BaseController
 
     public function destroy(Service $service)
     {
-        $service->delete();
+        $this->service->delete($service->id);
 
-        return response()->json([]);
+        return response()->json([], 204);
     }
 
     public function restore(int $id)
     {
-        Service::withTrashed()->find($id)->restore();
+        $this->service->restore($id);
 
-        return response()->json([]);
+        return response()->json([], 204);
     }
 
     public function validateClient(Request $request)

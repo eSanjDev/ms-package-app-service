@@ -75,7 +75,7 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                $this->packagePath('assets') => public_path('assets/vendor/app-service'),
+                $this->packagePath('assets') => resource_path('assets/packages/app-service'),
             ], 'esanj-app-service-assets');
 
             $this->publishes([

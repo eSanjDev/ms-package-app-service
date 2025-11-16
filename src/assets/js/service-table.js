@@ -1,4 +1,4 @@
-import BaseTable from './BaseTable.js';
+import BaseTable from '@js/pages/BaseTable.js';
 
 class ServiceTable extends BaseTable {
     constructor() {
@@ -22,10 +22,6 @@ class ServiceTable extends BaseTable {
         columns.push({data: 'actions'});
 
         return columns;
-    }
-
-    getCustomFilters() {
-        return {}
     }
 
 
@@ -84,7 +80,7 @@ class ServiceTable extends BaseTable {
                                 <a href="${baseUrlAdmin}/${resourceName}/${full['id']}/edit" class="btn btn_action p-2">
                                     <i class="icon-base ti tabler-edit"></i>
                                 </a>
-                                <a href="#" class="btn btn_action delete-record p-2">
+                                <a href="javascript:void(0)" class="btn btn_action delete-record p-2">
                                     <i class="icon-base ti tabler-delete"></i>
                                 </a>
                             </span>
@@ -103,6 +99,17 @@ class ServiceTable extends BaseTable {
             deleted_at: entityItem.deleted_at,
             actions: ''
         }))
+    }
+
+    getUrl(...data) {
+        const currentUrl = new URL(window.location.href);
+        const baseUrl = currentUrl.origin + currentUrl.pathname.replace(/\/$/, "");
+
+        return {
+            index: `${baseUrl}/`,
+            delete: `${baseUrl}/${data[0]}`,
+            restore: `${baseUrl}/${data[0]}/restore`
+        }
     }
 }
 

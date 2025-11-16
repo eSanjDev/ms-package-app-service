@@ -2,28 +2,32 @@
 
 @section('title', 'Services')
 
-@section('page-style')
-    <link rel="stylesheet" href="{{asset('assets/vendor/app-service/css/services.css')}}">
-@endsection
 
+<!-- Vendor Styles -->
 @section('vendor-style')
-    <link rel="stylesheet" href="{{asset('assets/vendor/app-service/libs/datatables-bs5/datatables.bootstrap5.css')}}">
+    @vite([
+    'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
+    'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
+])
 @endsection
 
 @section('vendor-script')
-    <script type="module"
-            src="{{asset('assets/vendor/app-service/libs/datatables-bs5/datatables-bootstrap5.js')}}"></script>
+    @vite([
+    'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
+])
 @endsection
 
+@section('page-style')
+    @vite([
+    'resources/assets/packages/app-service/css/services.css'
+])
+@endsection
+
+<!-- Page Scripts -->
 @section('page-script')
-    <script>
-        window.baseUrlApiAdmin = "{{config('esanj.app_service.routes.api_prefix')}}"
-        window.baseUrlAdmin = "{{config('esanj.app_service.routes.web_prefix')}}"
-        @if(request()->filled('only_trash'))
-            window.only_trash = 1;
-        @endif
-    </script>
-    <script type="module" src="{{asset('assets/vendor/app-service/js/service-table.js')}}"></script>
+    @vite([
+    'resources/assets/packages/app-service/js/service-table.js',
+])
 @endsection
 
 @section('content')
