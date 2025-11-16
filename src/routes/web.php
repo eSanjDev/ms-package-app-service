@@ -9,4 +9,5 @@ Route::prefix(config('esanj.app_service.routes.web_prefix'))
     ->group(function () {
         Route::resource('/services', AppServiceController::class)->except(['show']);
         Route::post('/services/{id}/restore', [AppServiceController::class, 'restore'])->name('services.restore');
+        Route::get("/services/validation", [AppServiceController::class, 'validateClient'])->name('services.validation');
     });

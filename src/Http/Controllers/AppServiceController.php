@@ -8,6 +8,7 @@ use Esanj\AppService\Model\ServicePermission;
 use Esanj\AppService\Services\ServiceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 class AppServiceController extends BaseController
 {
@@ -102,6 +103,17 @@ class AppServiceController extends BaseController
         $this->service->restore($id);
 
         return response()->json([], 204);
+    }
+
+    public function validateClient(Request $request)
+    {
+        $clientId = $request->get('client_id');
+
+        if (!$clientId) {
+            throw new RuntimeException('Client ID is required');
+        }
+
+        return $this->service->getClientDetails($clientId);
     }
 
     private function getGroupedPermissions(): array

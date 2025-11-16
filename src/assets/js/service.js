@@ -22,7 +22,10 @@ document.addEventListener('DOMContentLoaded', function () {
         this.classList.add('disabled');
 
         try {
-            const response = await fetch(`${window.baseUrlApiAdmin}/services/validation?client_id=${clientId}`, {
+            Swal.showLoading()
+
+            const url = button.getAttribute('data-url')
+            const response = await fetch(`${url}?client_id=${clientId}`, {
                 method: 'GET',
             });
 

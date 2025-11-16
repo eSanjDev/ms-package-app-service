@@ -3,15 +3,15 @@
 @section("title",'Create New Service')
 
 @section('page-style')
-    <link rel="stylesheet" href="{{asset('/assets/vendor/app-service/css/services-add-new.css')}}">
+    @vite([
+    'resources/assets/packages/app-service/css/services-add-new.css'
+])
 @endsection
 
 @section('page-script')
-    <script>
-        window.baseUrlApiAdmin = "{{config('esanj.app_service.routes.api_prefix')}}"
-        window.baseUrlAdmin = "{{config('esanj.app_service.routes.web_prefix')}}"
-    </script>
-    <script src="{{asset('assets/vendor/app-service/js/service.js')}}"></script>
+    @vite([
+'resources/assets/packages/app-service/js/service.js'
+])
 @endsection
 
 @section('content')
@@ -36,7 +36,7 @@
                         <input type="text" class="form-control" value="{{old('client_id')}}"
                                placeholder="Enter Client Id" name="client_id" id="clientID"/>
                         <label class="form-label">Client ID</label>
-                        <button class="btn btn-validate" type="button" id="validation-client">Validate</button>
+                        <button class="btn btn-validate" data-url="{{route('services.validation')}}" type="button" id="validation-client">Validate</button>
                     </div>
                     @error('client_id')
                     <div class="text-danger">{{ $message }}</div> @enderror
