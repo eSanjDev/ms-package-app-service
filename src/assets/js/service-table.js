@@ -100,17 +100,6 @@ class ServiceTable extends BaseTable {
             actions: ''
         }))
     }
-
-    getUrl(...data) {
-        const currentUrl = new URL(window.location.href);
-        const baseUrl = currentUrl.origin + currentUrl.pathname.replace(/\/$/, "");
-
-        return {
-            index: `${baseUrl}/`,
-            delete: `${baseUrl}/${data[0]}`,
-            restore: `${baseUrl}/${data[0]}/restore`
-        }
-    }
 }
 
 const serviceTable = new ServiceTable();
