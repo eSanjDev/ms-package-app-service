@@ -37,6 +37,13 @@ class EnsureServicePermission
                 return $this->deny(__('Service cannot be identified.'));
             }
 
+            if (!$service->is_active) {
+                Log::info('EnsureServicePermission: Service is inactive', [
+                    'service' => $service->name,
+                ]);
+                return $this->deny(__('Service is currently inactive.'));
+            }
+
             if (!$service->hasPermission($permission)) {
                 Log::info('EnsureServicePermission: Permission denied', [
                     'service' => $service->name,
