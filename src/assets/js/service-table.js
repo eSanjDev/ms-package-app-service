@@ -54,8 +54,8 @@ class ServiceTable extends BaseTable {
                     const status = full['status']
                     let output = ''
                     const statusBadgeObj = {
-                        1: '<span class="badge bg-label-success me-1">Active</span>',
-                        0: '<span class="badge bg-label-danger me-1">Disable</span>'
+                        true: '<span class="badge bg-label-success me-1">Active</span>',
+                        false: '<span class="badge bg-label-danger me-1">Disable</span>'
                     }
 
                     output = statusBadgeObj[status] || `<span class="badge bg-label-secondary me-1">${status}</span>`
@@ -95,7 +95,7 @@ class ServiceTable extends BaseTable {
             id: entityItem.id,
             name: entityItem.name,
             client_id: entityItem.client_id,
-            status: entityItem.status,
+            status: entityItem.is_active,
             deleted_at: entityItem.deleted_at,
             actions: ''
         }))

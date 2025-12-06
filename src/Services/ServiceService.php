@@ -4,55 +4,79 @@ namespace Esanj\AppService\Services;
 
 use Esanj\AppService\Model\Service;
 use Esanj\AuthBridge\Services\ClientCredentialsService;
+use Exception;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Client\Response;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use PHPUnit\Runner\FileDoesNotExistException;
 use RuntimeException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class ServiceService
 {
-    protected Model $model;
+    public function __construct(
+        protected ClientCredentialsService $credentialsService
+    ) {}
 
-    public function __construct(protected ClientCredentialsService $credentialsService)
+    public function getServicesWithPaginate(Request $request): LengthAwarePaginator
     {
-        $this->model = new Service();
-    }
-
-    public function getServicesWithPaginate()
-    {
-        $request = request();
-
         $query = Service::query();
 
-        if ($request->filled('only_trash') && $request->get('only_trash') == 1) {
-            $query = $query->whereNotNull('deleted_at')->withTrashed();
+        if ($request->boolean('only_trash')) {
+            $query->onlyTrashed();
         }
 
         if ($request->filled('search')) {
-            $query = $query->where(function ($query) use ($request) {
-                return $query->where('name', 'like', '%' . $request->get('search') . '%')
-                    ->orWhere('client_id', 'like', '%' . $request->get('search') . '%');
+            $searchTerm = $request->get('search');
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                  ->orWhere('client_id', 'like', "%{$searchTerm}%");
             });
         }
 
-        return $query->paginate($request->get('per_page', 10));
+        return $query->paginate($request->integer('per_page', 10));
     }
 
-    public function delete(int $id)
+    public function findById(int $id): Service
     {
-        return $this->model->find($id)->delete();
+        return Service::query()->findOrFail($id);
     }
 
-    public function restore(int $id)
+    public function findByIdWithTrashed(int $id): Service
     {
-        return $this->model->withTrashed()->find($id)->restore();
+        return Service::withTrashed()->findOrFail($id);
     }
 
-    public function getClientDetails(string $client_id)
+    public function create(array $data): Service
+    {
+        return Service::query()->create($data);
+    }
+
+    public function update(Service $service, array $data): Service
+    {
+        $service->update($data);
+        return $service->fresh();
+    }
+
+    public function delete(int $id): bool
+    {
+        return $this->findById($id)->delete();
+    }
+
+    public function restore(int $id): bool
+    {
+        return $this->findByIdWithTrashed($id)->restore();
+    }
+
+    public function syncPermissions(Service $service, ?array $permissionIds): void
+    {
+        $service->permissions()->sync($permissionIds ?? []);
+    }
+
+    public function getClientDetails(string $clientId): Response
     {
         $token = $this->credentialsService->getAccessToken(
             config('auth_bridge.client_id'),
@@ -60,34 +84,28 @@ class ServiceService
         );
 
         if (empty($token['access_token'])) {
-            throw new RuntimeException('Access token not found');
+            throw new RuntimeException('Access token not found.');
         }
 
-        $url = config('auth_bridge.base_url') . "/api/application/clients/{$client_id}";
+        $url = config('auth_bridge.base_url') . "/api/application/clients/{$clientId}";
 
-        $response = Http::withToken($token['access_token'])->get($url);
-
-        if ($response->failed()) {
-            return response()->json($response->json(), $response->status());
-        }
-
-
-        return $response;
+        return Http::withToken($token['access_token'])->get($url);
     }
 
-    public function decodeJWT(string $token)
+    public function decodeJWT(string $token): object
     {
+        $publicKeyPath = config('esanj.manager.public_key_path');
+
+        if (!$publicKeyPath || !file_exists($publicKeyPath)) {
+            Log::error('ServiceService: Public key file not found.', [
+                'path' => $publicKeyPath,
+            ]);
+            throw new RuntimeException('Public key file not found.');
+        }
+
         try {
-            $publicKeyPath = config('esanj.manager.public_key_path');
-
-            if (!file_exists($publicKeyPath)) {
-                Log::error('EnsureServicePermission: Public key file not found.');
-                throw new FileDoesNotExistException('Public key file not found.');
-            }
-
             $publicKey = file_get_contents($publicKeyPath);
             return JWT::decode($token, new Key($publicKey, 'RS256'));
-
         } catch (Exception $e) {
             Log::error('JWT validation error: ' . $e->getMessage());
             throw new UnauthorizedHttpException('Bearer Token', 'Invalid token or signature.');

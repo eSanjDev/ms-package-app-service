@@ -2,116 +2,99 @@
 
 namespace Esanj\AppService\Http\Controllers;
 
+use Esanj\AppService\Exceptions\ServiceException;
+use Esanj\AppService\Http\Requests\ServiceRequest;
 use Esanj\AppService\Http\Resources\ServiceListResource;
 use Esanj\AppService\Model\Service;
 use Esanj\AppService\Services\ServiceService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use RuntimeException;
-
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class AppServiceApiController extends BaseController
 {
-    public function __construct(protected ServiceService $service)
+    public function __construct(
+        protected ServiceService $serviceService
+    )
     {
-        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.list'))->only(['index', 'show']);
-        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.store'))->only(['store']);
-        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.update'))->only(['update']);
-        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.delete'))->only(['destroy']);
-        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.restore'))->only(['restore']);
+        $this->registerPermissionMiddleware();
     }
 
-    public function index()
+    protected function registerPermissionMiddleware(): void
     {
-        $query = $this->service->getServicesWithPaginate();
+        $config = config('esanj.app_service.access_provider');
 
-        return response()->json(
-            ServiceListResource::collection($query)
-                ->additional(['totalRecords' => $query->total()])
-                ->response()
-                ->getData(true)
-        );
+        $this->middleware('manager.permission:' . $config['list'])->only(['index', 'show']);
+        $this->middleware('manager.permission:' . $config['store'])->only(['store']);
+        $this->middleware('manager.permission:' . $config['update'])->only(['update']);
+        $this->middleware('manager.permission:' . $config['delete'])->only(['destroy']);
+        $this->middleware('manager.permission:' . $config['restore'])->only(['restore']);
     }
 
-    public function show(Service $service)
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return response()->json([
-            'data' => new ServiceListResource($service)
-        ]);
+        $services = $this->serviceService->getServicesWithPaginate($request);
+
+        return ServiceListResource::collection($services)->additional(['totalRecords' => $services->total()]);
     }
 
-    public function store(Request $request)
+    public function show(Service $service): JsonResponse
     {
-        $rules = [
-            'name' => ['required', 'string', 'max:255', 'unique:services,name'],
-            'client_id' => ['required', 'string', 'max:255'],
-            'is_active' => ['boolean'],
-        ];
-        $validations = Validator::make($request->all(), $rules);
-        if ($validations->fails()) {
-            return response()->json([
-                "message" => $validations->getMessageBag()->first(),
-                'errors' => $validations->errors(),
-            ], 422);
-        }
-
-        $service = Service::create([
-            'name' => $request->get('name'),
-            'client_id' => $request->get('client_id'),
-            'is_active' => $request->get("is_active"),
-        ]);
-
-        return response()->json([
+        return $this->successResponse([
             'data' => new ServiceListResource($service),
-            'message' => 'Service has been created.'
+        ]);
+    }
+
+    public function store(ServiceRequest $request): JsonResponse
+    {
+        $service = $this->serviceService->create($request->validated());
+        $this->serviceService->syncPermissions($service, $request->get('permissions'));
+
+        return $this->successResponse([
+            'data' => new ServiceListResource($service),
+            'message' => __('Service has been created.'),
         ], 201);
     }
 
-    public function update(Request $request, Service $service)
+    public function update(ServiceRequest $request, Service $service): JsonResponse
     {
-        $rules = [
-            'name' => ['required', 'string', 'max:255', 'unique:services,name,' . $service->id],
-            'client_id' => ['required', 'string', 'max:255'],
-            'is_active' => ['boolean'],
-        ];
-        $validations = Validator::make($request->all(), $rules);
-        if ($validations->fails()) {
-            return response()->json([
-                "message" => $validations->getMessageBag()->first(),
-                'errors' => $validations->errors(),
-            ], 422);
-        }
+        $this->serviceService->update($service, $request->validated());
+        $this->serviceService->syncPermissions($service, $request->get('permissions'));
 
-        $service->update($request->only(['name', 'client_id', 'is_active']));
-
-        return response()->json([
-            'data' => new ServiceListResource($service),
-            'message' => 'Service has been updated.'
+        return $this->successResponse([
+            'data' => new ServiceListResource($service->fresh()),
+            'message' => __('Service has been updated.'),
         ]);
     }
 
-    public function destroy(Service $service)
+    public function destroy(Service $service): JsonResponse
     {
-        $this->service->delete($service->id);
+        $this->serviceService->delete($service->id);
 
-        return response()->json([], 204);
+        return $this->noContentResponse();
     }
 
-    public function restore(int $id)
+    public function restore(int $id): JsonResponse
     {
-        $this->service->restore($id);
+        $this->serviceService->restore($id);
 
-        return response()->json([], 204);
+        return $this->noContentResponse();
     }
 
-    public function validateClient(Request $request)
+    public function validateClient(Request $request): JsonResponse
     {
         $clientId = $request->get('client_id');
 
         if (!$clientId) {
-            throw new RuntimeException('Client ID is required');
+            throw ServiceException::clientIdRequired();
         }
 
-        return $this->service->getClientDetails($clientId);
+        $response = $this->serviceService->getClientDetails($clientId);
+
+        if ($response->failed()) {
+            return response()->json($response->json(), $response->status());
+        }
+
+        return response()->json($response->json());
     }
 }

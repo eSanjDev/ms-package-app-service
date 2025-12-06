@@ -6,6 +6,7 @@ use Esanj\AppService\Commands\ImportPermissionsCommand;
 use Esanj\AppService\Commands\InstallCommand;
 use Esanj\AppService\Http\Middleware\EnsureServicePermission;
 use Esanj\AppService\Http\Middleware\ValidateJwtMiddleware;
+use Esanj\AppService\Services\ServiceService;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 
@@ -14,28 +15,33 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->registerConfig();
-        $this->registerCommands();
+        $this->registerServices();
     }
 
     public function boot(): void
     {
+        $this->registerCommands();
         $this->registerViews();
         $this->registerRoutes();
         $this->registerMigrations();
         $this->registerPublishing();
-        $this->registerMigrations();
         $this->registerMiddleware();
     }
 
-    private function registerMiddleware(): void
+    protected function registerServices(): void
     {
-        $router = app(Router::class);
+        $this->app->singleton(ServiceService::class);
+    }
+
+    protected function registerMiddleware(): void
+    {
+        $router = $this->app->make(Router::class);
 
         $router->aliasMiddleware('service.permission', EnsureServicePermission::class);
         $router->aliasMiddleware('service.validation', ValidateJwtMiddleware::class);
     }
 
-    private function registerCommands(): void
+    protected function registerCommands(): void
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -45,14 +51,14 @@ class AppServiceProvider extends ServiceProvider
         }
     }
 
-    private function registerViews(): void
+    protected function registerViews(): void
     {
         if (!config('esanj.app_service.just_api')) {
             $this->loadViewsFrom($this->packagePath('views'), 'app-service');
         }
     }
 
-    private function registerRoutes(): void
+    protected function registerRoutes(): void
     {
         if (!config('esanj.app_service.just_api')) {
             $this->loadRoutesFrom($this->packagePath('routes/web.php'));
@@ -61,39 +67,43 @@ class AppServiceProvider extends ServiceProvider
         $this->loadRoutesFrom($this->packagePath('routes/api.php'));
     }
 
-    private function registerConfig(): void
+    protected function registerConfig(): void
     {
-        $this->mergeConfigFrom($this->packagePath('config/app_service.php'), 'esanj.app_service');
+        $this->mergeConfigFrom(
+            $this->packagePath('config/app_service.php'),
+            'esanj.app_service'
+        );
     }
 
-    private function registerMigrations(): void
+    protected function registerMigrations(): void
     {
         $this->loadMigrationsFrom($this->packagePath('database/migrations'));
     }
 
-    private function registerPublishing(): void
+    protected function registerPublishing(): void
     {
-        if ($this->app->runningInConsole()) {
-            $this->publishes([
-                $this->packagePath('assets') => resource_path('assets/packages/app-service'),
-            ], 'esanj-app-service-assets');
-
-            $this->publishes([
-                $this->packagePath('config/app_service.php') => config_path('esanj/app_service.php'),
-            ], 'esanj-app-service-config');
-
-            $this->publishes([
-                $this->packagePath('views') => resource_path('views/vendor/app-service'),
-            ], 'esanj-app-service-views');
-
-            $this->publishes([
-                $this->packagePath('database/migrations/') => database_path('migrations'),
-            ], 'esanj-app-service-migrations');
+        if (!$this->app->runningInConsole()) {
+            return;
         }
+
+        $this->publishes([
+            $this->packagePath('assets') => resource_path('assets/packages/app-service'),
+        ], 'esanj-app-service-assets');
+
+        $this->publishes([
+            $this->packagePath('config/app_service.php') => config_path('esanj/app_service.php'),
+        ], 'esanj-app-service-config');
+
+        $this->publishes([
+            $this->packagePath('views') => resource_path('views/vendor/app-service'),
+        ], 'esanj-app-service-views');
+
+        $this->publishes([
+            $this->packagePath('database/migrations/') => database_path('migrations'),
+        ], 'esanj-app-service-migrations');
     }
 
-
-    private function packagePath(string $path): string
+    protected function packagePath(string $path): string
     {
         return dirname(__DIR__) . '/' . ltrim($path, '/');
     }

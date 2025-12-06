@@ -2,128 +2,115 @@
 
 namespace Esanj\AppService\Http\Controllers;
 
+use Esanj\AppService\Exceptions\ServiceException;
+use Esanj\AppService\Http\Requests\ServiceRequest;
 use Esanj\AppService\Http\Resources\ServiceListResource;
+use Esanj\AppService\Http\Traits\HasServicePermissions;
 use Esanj\AppService\Model\Service;
-use Esanj\AppService\Model\ServicePermission;
 use Esanj\AppService\Services\ServiceService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use RuntimeException;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\View\View;
 
 class AppServiceController extends BaseController
 {
-    public function __construct(protected ServiceService $service)
+    use HasServicePermissions;
+
+    public function __construct(
+        protected ServiceService $serviceService
+    )
     {
-        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.list'))->only(['index']);
-        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.store'))->only(['create', 'store']);
-        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.update'))->only(['edit', 'update']);
-        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.delete'))->only(['destroy']);
-        $this->middleware('manager.permission:' . config('esanj.app_service.access_provider.restore'))->only(['restore']);
+        $this->registerPermissionMiddleware();
     }
 
-    public function index(Request $request)
+    protected function registerPermissionMiddleware(): void
+    {
+        $config = config('esanj.app_service.access_provider');
+
+        $this->middleware('manager.permission:' . $config['list'])->only(['index']);
+        $this->middleware('manager.permission:' . $config['store'])->only(['create', 'store']);
+        $this->middleware('manager.permission:' . $config['update'])->only(['edit', 'update']);
+        $this->middleware('manager.permission:' . $config['delete'])->only(['destroy']);
+        $this->middleware('manager.permission:' . $config['restore'])->only(['restore']);
+    }
+
+    public function index(Request $request): View|AnonymousResourceCollection
     {
         if ($request->ajax()) {
-            $query = $this->service->getServicesWithPaginate();
+            $services = $this->serviceService->getServicesWithPaginate($request);
 
-            return response()->json(
-                ServiceListResource::collection($query)
-                    ->additional(['totalRecords' => $query->total()])
-                    ->response()
-                    ->getData(true)
-            );
+            return ServiceListResource::collection($services)->additional(['totalRecords' => $services->total()]);
         }
 
         return view('app-service::index');
     }
 
-    public function create()
+    public function create(): View
     {
-        $permissions = $this->getGroupedPermissions();
-
-        return view('app-service::create', compact('permissions'));
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:services,name'],
-            'client_id' => ['required', 'string', 'max:255', 'unique:services,client_id'],
-            'is_active' => ['boolean'],
-            'permissions' => ['nullable', 'array'],
-            'permissions.*' => ['exists:service_permissions,id'],
+        return view('app-service::create', [
+            'permissions' => $this->getGroupedPermissions(),
         ]);
+    }
 
-        $service = Service::query()->create([
-            'name' => $request->get('name'),
-            'client_id' => $request->get('client_id'),
-            'is_active' => $request->get("is_active"),
+    public function store(ServiceRequest $request): RedirectResponse
+    {
+        $service = $this->serviceService->create($request->validated());
+        $this->serviceService->syncPermissions($service, $request->get('permissions'));
+
+        return redirect()
+            ->route('services.edit', $service)
+            ->with('success', __('Service has been created.'));
+    }
+
+    public function edit(Service $service): View
+    {
+        return view('app-service::edit', [
+            'service' => $service,
+            'permissions' => $this->getGroupedPermissions(),
+            'servicePermissions' => $service->permissions->pluck('id')->toArray(),
         ]);
-
-        $service->permissions()->sync($request->get('permissions'));
-
-        return redirect()->route('services.edit', $service)->with('success', 'Service has been created.');
     }
 
-    public function edit(Service $service)
+    public function update(ServiceRequest $request, Service $service): RedirectResponse
     {
-        $permissions = $this->getGroupedPermissions();
+        $this->serviceService->update($service, $request->validated());
+        $this->serviceService->syncPermissions($service, $request->get('permissions'));
 
-        $servicePermissions = $service->permissions->pluck('id')->toArray();
-
-        return view('app-service::edit', compact('service', 'permissions', 'servicePermissions'));
+        return redirect()
+            ->route('services.edit', $service)
+            ->with('success', __('Service has been updated.'));
     }
 
-    public function update(Request $request, Service $service)
+    public function destroy(Service $service): JsonResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:services,name,' . $service->id],
-            'client_id' => ['required', 'string', 'max:255', 'unique:services,client_id,' . $service->id],
-            'is_active' => ['boolean'],
-            'permissions' => ['nullable', 'array'],
-            'permissions.*' => ['exists:service_permissions,id'],
-        ]);
+        $this->serviceService->delete($service->id);
 
-        $service->update($request->only(['name', 'client_id', 'is_active']));
-
-        $service->permissions()->sync($request->get('permissions'));
-
-        return redirect()->route('services.edit', $service)->with('success', 'Service has been updated.');
+        return $this->noContentResponse();
     }
 
-    public function destroy(Service $service)
+    public function restore(int $id): JsonResponse
     {
-        $this->service->delete($service->id);
+        $this->serviceService->restore($id);
 
-        return response()->json([], 204);
+        return $this->noContentResponse();
     }
 
-    public function restore(int $id)
-    {
-        $this->service->restore($id);
-
-        return response()->json([], 204);
-    }
-
-    public function validateClient(Request $request)
+    public function validateClient(Request $request): JsonResponse
     {
         $clientId = $request->get('client_id');
 
         if (!$clientId) {
-            throw new RuntimeException('Client ID is required');
+            throw ServiceException::clientIdRequired();
         }
 
-        return $this->service->getClientDetails($clientId);
-    }
+        $response = $this->serviceService->getClientDetails($clientId);
 
-    private function getGroupedPermissions(): array
-    {
-        return ServicePermission::all()->reduce(function ($grouped, $permission) {
-            $prefix = Str::before($permission->key, '.');
+        if ($response->failed()) {
+            return response()->json($response->json(), $response->status());
+        }
 
-            $grouped[$prefix][$permission->id] = $permission->display_name;
-
-            return $grouped;
-        }, []);
+        return response()->json($response->json());
     }
 }
