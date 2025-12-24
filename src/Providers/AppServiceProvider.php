@@ -33,8 +33,9 @@ class AppServiceProvider extends ServiceProvider
 
     protected function registerServices(): void
     {
-        $this->app->singleton(ServiceServiceInterface::class, ServiceService::class);
-        $this->app->alias(ServiceServiceInterface::class, ServiceService::class);
+        $this->app->singleton(ServiceServiceInterface::class, function ($app) {
+            return $app->make(ServiceService::class);
+        });
     }
 
     protected function registerMiddleware(): void
