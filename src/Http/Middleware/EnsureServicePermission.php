@@ -1,28 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Esanj\AppService\Http\Middleware;
 
 use Closure;
+use Esanj\AppService\Contracts\ServiceServiceInterface;
 use Esanj\AppService\Exceptions\JwtException;
-use Esanj\AppService\Model\Service;
-use Esanj\AppService\Services\ServiceService;
-use Exception;
+use Esanj\AppService\Exceptions\ServiceException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Throwable;
 
 class EnsureServicePermission
 {
+    private const ATTRIBUTE_SERVICE = 'service';
+
     public function __construct(
-        protected ServiceService $serviceService
+        protected ServiceServiceInterface $serviceService
     ) {}
 
     public function handle(Request $request, Closure $next, string $permission): Response
     {
         $token = $request->bearerToken();
 
-        if (!$token) {
+        if (empty($token)) {
             throw JwtException::missingToken();
         }
 
@@ -30,48 +35,55 @@ class EnsureServicePermission
             $decoded = $this->serviceService->decodeJWT($token);
             $clientId = $decoded->aud ?? null;
 
-            $service = Service::query()->byClientId($clientId)->first();
+            if (empty($clientId)) {
+                throw JwtException::invalidAudience();
+            }
 
-            if (!$service) {
+            $service = $this->serviceService->findByClientId($clientId);
+
+            if ($service === null) {
                 Log::warning('EnsureServicePermission: Unknown service client_id', [
                     'client_id' => $clientId,
                 ]);
+
                 return $this->denyAccess(__('Service cannot be identified.'));
             }
 
-            if (!$service->is_active) {
+            if (! $service->is_active) {
                 Log::info('EnsureServicePermission: Service is inactive', [
                     'service' => $service->name,
                 ]);
+
                 return $this->denyAccess(__('Service is currently inactive.'));
             }
 
-            if (!$service->hasPermission($permission)) {
+            if (! $service->hasPermission($permission)) {
                 Log::info('EnsureServicePermission: Permission denied', [
                     'service' => $service->name,
                     'permission' => $permission,
                 ]);
+
                 return $this->denyAccess(__('Access denied for this service.'));
             }
 
-            // Attach service to request for later use
-            $request->attributes->set('service', $service);
+            $request->attributes->set(self::ATTRIBUTE_SERVICE, $service);
 
             return $next($request);
-
         } catch (UnauthorizedHttpException $e) {
             throw $e;
-        } catch (Exception $e) {
-            Log::error('EnsureServicePermission: Exception', [
+        } catch (ServiceException $e) {
+            return $this->denyAccess($e->getMessage());
+        } catch (Throwable $e) {
+            Log::error('EnsureServicePermission: Unexpected error', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'exception' => get_class($e),
             ]);
 
             return $this->denyAccess(__('An internal authorization error occurred.'));
         }
     }
 
-    protected function denyAccess(string $message): Response
+    protected function denyAccess(string $message): JsonResponse
     {
         return response()->json([
             'success' => false,

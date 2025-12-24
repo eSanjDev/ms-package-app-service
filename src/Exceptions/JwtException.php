@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Esanj\AppService\Exceptions;
 
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -11,13 +13,28 @@ class JwtException extends UnauthorizedHttpException
         return new self('Bearer realm="Service"', 'Authorization token is missing.');
     }
 
-    public static function invalidToken(): self
+    public static function invalidToken(string $reason = ''): self
     {
-        return new self('Bearer Token', 'Invalid token or signature.');
+        $message = 'Invalid token or signature.';
+        if ($reason !== '') {
+            $message .= " Reason: {$reason}";
+        }
+
+        return new self('Bearer Token', $message);
     }
 
-    public static function publicKeyNotFound(): self
+    public static function expiredToken(): self
     {
-        return new self('Bearer Token', 'Public key file not found.');
+        return new self('Bearer Token', 'Token has expired.');
+    }
+
+    public static function publicKeyNotFound(string $path = ''): self
+    {
+        return new self('Bearer Token', "Public key file not found at: {$path}");
+    }
+
+    public static function invalidAudience(): self
+    {
+        return new self('Bearer Token', 'Token audience is invalid.');
     }
 }

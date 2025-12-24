@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Esanj\AppService\Http\Controllers;
 
+use Esanj\AppService\Contracts\ServiceServiceInterface;
 use Esanj\AppService\Exceptions\ServiceException;
 use Esanj\AppService\Http\Requests\ServiceRequest;
 use Esanj\AppService\Http\Resources\ServiceListResource;
 use Esanj\AppService\Http\Traits\HasServicePermissions;
+use Esanj\AppService\Http\Traits\RegistersPermissionMiddleware;
 use Esanj\AppService\Model\Service;
-use Esanj\AppService\Services\ServiceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,23 +20,17 @@ use Illuminate\View\View;
 class AppServiceController extends BaseController
 {
     use HasServicePermissions;
+    use RegistersPermissionMiddleware;
 
     public function __construct(
-        protected ServiceService $serviceService
-    )
-    {
+        protected ServiceServiceInterface $serviceService
+    ) {
         $this->registerPermissionMiddleware();
     }
 
-    protected function registerPermissionMiddleware(): void
+    protected function getListActions(): array
     {
-        $config = config('esanj.app_service.access_provider');
-
-        $this->middleware('manager.permission:' . $config['list'])->only(['index']);
-        $this->middleware('manager.permission:' . $config['store'])->only(['create', 'store']);
-        $this->middleware('manager.permission:' . $config['update'])->only(['edit', 'update']);
-        $this->middleware('manager.permission:' . $config['delete'])->only(['destroy']);
-        $this->middleware('manager.permission:' . $config['restore'])->only(['restore']);
+        return ['index'];
     }
 
     public function index(Request $request): View|AnonymousResourceCollection
@@ -41,7 +38,8 @@ class AppServiceController extends BaseController
         if ($request->ajax()) {
             $services = $this->serviceService->getServicesWithPaginate($request);
 
-            return ServiceListResource::collection($services)->additional(['totalRecords' => $services->total()]);
+            return ServiceListResource::collection($services)
+                ->additional(['totalRecords' => $services->total()]);
         }
 
         return view('app-service::index');
@@ -57,7 +55,7 @@ class AppServiceController extends BaseController
     public function store(ServiceRequest $request): RedirectResponse
     {
         $service = $this->serviceService->create($request->validated());
-        $this->serviceService->syncPermissions($service, $request->get('permissions'));
+        $this->serviceService->syncPermissions($service, $request->input('permissions'));
 
         return redirect()
             ->route('services.edit', $service)
@@ -76,7 +74,7 @@ class AppServiceController extends BaseController
     public function update(ServiceRequest $request, Service $service): RedirectResponse
     {
         $this->serviceService->update($service, $request->validated());
-        $this->serviceService->syncPermissions($service, $request->get('permissions'));
+        $this->serviceService->syncPermissions($service, $request->input('permissions'));
 
         return redirect()
             ->route('services.edit', $service)
@@ -99,18 +97,14 @@ class AppServiceController extends BaseController
 
     public function validateClient(Request $request): JsonResponse
     {
-        $clientId = $request->get('client_id');
+        $clientId = $request->input('client_id');
 
-        if (!$clientId) {
+        if (empty($clientId)) {
             throw ServiceException::clientIdRequired();
         }
 
         $response = $this->serviceService->getClientDetails($clientId);
 
-        if ($response->failed()) {
-            return response()->json($response->json(), $response->status());
-        }
-
-        return response()->json($response->json());
+        return response()->json($response->json(), $response->status());
     }
 }

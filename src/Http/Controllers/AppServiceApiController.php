@@ -1,41 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Esanj\AppService\Http\Controllers;
 
+use Esanj\AppService\Contracts\ServiceServiceInterface;
 use Esanj\AppService\Exceptions\ServiceException;
 use Esanj\AppService\Http\Requests\ServiceRequest;
 use Esanj\AppService\Http\Resources\ServiceListResource;
+use Esanj\AppService\Http\Traits\RegistersPermissionMiddleware;
 use Esanj\AppService\Model\Service;
-use Esanj\AppService\Services\ServiceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class AppServiceApiController extends BaseController
 {
+    use RegistersPermissionMiddleware;
+
     public function __construct(
-        protected ServiceService $serviceService
-    )
-    {
+        protected ServiceServiceInterface $serviceService
+    ) {
         $this->registerPermissionMiddleware();
-    }
-
-    protected function registerPermissionMiddleware(): void
-    {
-        $config = config('esanj.app_service.access_provider');
-
-        $this->middleware('manager.permission:' . $config['list'])->only(['index', 'show']);
-        $this->middleware('manager.permission:' . $config['store'])->only(['store']);
-        $this->middleware('manager.permission:' . $config['update'])->only(['update']);
-        $this->middleware('manager.permission:' . $config['delete'])->only(['destroy']);
-        $this->middleware('manager.permission:' . $config['restore'])->only(['restore']);
     }
 
     public function index(Request $request): AnonymousResourceCollection
     {
         $services = $this->serviceService->getServicesWithPaginate($request);
 
-        return ServiceListResource::collection($services)->additional(['totalRecords' => $services->total()]);
+        return ServiceListResource::collection($services)
+            ->additional(['totalRecords' => $services->total()]);
     }
 
     public function show(Service $service): JsonResponse
@@ -48,18 +42,18 @@ class AppServiceApiController extends BaseController
     public function store(ServiceRequest $request): JsonResponse
     {
         $service = $this->serviceService->create($request->validated());
-        $this->serviceService->syncPermissions($service, $request->get('permissions'));
+        $this->serviceService->syncPermissions($service, $request->input('permissions'));
 
-        return $this->successResponse([
-            'data' => new ServiceListResource($service),
-            'message' => __('Service has been created.'),
-        ], 201);
+        return $this->createdResponse(
+            (new ServiceListResource($service))->toArray($request),
+            __('Service has been created.')
+        );
     }
 
     public function update(ServiceRequest $request, Service $service): JsonResponse
     {
         $this->serviceService->update($service, $request->validated());
-        $this->serviceService->syncPermissions($service, $request->get('permissions'));
+        $this->serviceService->syncPermissions($service, $request->input('permissions'));
 
         return $this->successResponse([
             'data' => new ServiceListResource($service->fresh()),
@@ -83,18 +77,14 @@ class AppServiceApiController extends BaseController
 
     public function validateClient(Request $request): JsonResponse
     {
-        $clientId = $request->get('client_id');
+        $clientId = $request->input('client_id');
 
-        if (!$clientId) {
+        if (empty($clientId)) {
             throw ServiceException::clientIdRequired();
         }
 
         $response = $this->serviceService->getClientDetails($clientId);
 
-        if ($response->failed()) {
-            return response()->json($response->json(), $response->status());
-        }
-
-        return response()->json($response->json());
+        return response()->json($response->json(), $response->status());
     }
 }

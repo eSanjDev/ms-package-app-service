@@ -1,10 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Esanj\AppService\Services;
 
+use Esanj\AppService\Contracts\ServiceServiceInterface;
+use Esanj\AppService\Exceptions\JwtException;
 use Esanj\AppService\Model\Service;
-use Esanj\AuthBridge\Services\ClientCredentialsService;
+use Esanj\AuthBridge\Contracts\ClientCredentialsServiceInterface;
 use Exception;
+use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -13,12 +18,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-class ServiceService
+class ServiceService implements ServiceServiceInterface
 {
+    private const SEARCH_COLUMNS = ['name', 'client_id'];
+
     public function __construct(
-        protected ClientCredentialsService $credentialsService
+        protected ClientCredentialsServiceInterface $credentialsService
     ) {}
 
     public function getServicesWithPaginate(Request $request): LengthAwarePaginator
@@ -30,10 +36,11 @@ class ServiceService
         }
 
         if ($request->filled('search')) {
-            $searchTerm = $request->get('search');
+            $searchTerm = $request->input('search');
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', "%{$searchTerm}%")
-                  ->orWhere('client_id', 'like', "%{$searchTerm}%");
+                foreach (self::SEARCH_COLUMNS as $column) {
+                    $q->orWhere($column, 'like', "%{$searchTerm}%");
+                }
             });
         }
 
@@ -50,6 +57,11 @@ class ServiceService
         return Service::withTrashed()->findOrFail($id);
     }
 
+    public function findByClientId(string $clientId): ?Service
+    {
+        return Service::query()->byClientId($clientId)->first();
+    }
+
     public function create(array $data): Service
     {
         return Service::query()->create($data);
@@ -58,6 +70,7 @@ class ServiceService
     public function update(Service $service, array $data): Service
     {
         $service->update($data);
+
         return $service->fresh();
     }
 
@@ -78,37 +91,49 @@ class ServiceService
 
     public function getClientDetails(string $clientId): Response
     {
-        $token = $this->credentialsService->getAccessToken(
-            config('auth_bridge.client_id'),
-            config('auth_bridge.client_secret')
+        $tokenData = $this->credentialsService->getAccessToken(
+            config('esanj.auth_bridge.client_id'),
+            config('esanj.auth_bridge.client_secret')
         );
 
-        if (empty($token['access_token'])) {
-            throw new RuntimeException('Access token not found.');
-        }
+        $baseUrl = rtrim(config('esanj.auth_bridge.base_url'), '/');
+        $url = "{$baseUrl}/api/application/clients/{$clientId}";
 
-        $url = config('auth_bridge.base_url') . "/api/application/clients/{$clientId}";
-
-        return Http::withToken($token['access_token'])->get($url);
+        return Http::withToken($tokenData->accessToken)->get($url);
     }
 
     public function decodeJWT(string $token): object
     {
-        $publicKeyPath = config('esanj.manager.public_key_path');
+        $publicKeyPath = $this->getPublicKeyPath();
 
-        if (!$publicKeyPath || !file_exists($publicKeyPath)) {
-            Log::error('ServiceService: Public key file not found.', [
-                'path' => $publicKeyPath,
-            ]);
-            throw new RuntimeException('Public key file not found.');
-        }
+        $this->validatePublicKeyPath($publicKeyPath);
 
         try {
             $publicKey = file_get_contents($publicKeyPath);
+
             return JWT::decode($token, new Key($publicKey, 'RS256'));
+        } catch (ExpiredException $e) {
+            Log::warning('JWT token expired', ['message' => $e->getMessage()]);
+            throw JwtException::expiredToken();
         } catch (Exception $e) {
-            Log::error('JWT validation error: ' . $e->getMessage());
-            throw new UnauthorizedHttpException('Bearer Token', 'Invalid token or signature.');
+            Log::error('JWT validation error', [
+                'message' => $e->getMessage(),
+                'exception' => get_class($e),
+            ]);
+            throw JwtException::invalidToken();
+        }
+    }
+
+    private function getPublicKeyPath(): string
+    {
+        return config('esanj.manager.public_key_path', storage_path('oauth-public.key'));
+    }
+
+    private function validatePublicKeyPath(string $path): void
+    {
+        if (empty($path) || ! file_exists($path)) {
+            Log::error('ServiceService: Public key file not found.', ['path' => $path]);
+            throw JwtException::publicKeyNotFound($path);
         }
     }
 }

@@ -1,38 +1,45 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Esanj\AppService\Http\Middleware;
 
 use Closure;
+use Esanj\AppService\Contracts\ServiceServiceInterface;
 use Esanj\AppService\Exceptions\JwtException;
-use Esanj\AppService\Services\ServiceService;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class ValidateJwtMiddleware
 {
+    private const ATTRIBUTE_CLIENT_ID = 'jwt_client_id';
+    private const ATTRIBUTE_PAYLOAD = 'jwt_payload';
+
     public function __construct(
-        protected ServiceService $serviceService
+        protected ServiceServiceInterface $serviceService
     ) {}
 
     public function handle(Request $request, Closure $next): Response
     {
         $token = $request->bearerToken();
 
-        if (!$token) {
+        if (empty($token)) {
             throw JwtException::missingToken();
         }
 
         try {
             $decoded = $this->serviceService->decodeJWT($token);
 
-            $request->attributes->set('jwt_client_id', $decoded->aud ?? null);
-            $request->attributes->set('jwt_payload', $decoded);
-
-        } catch (Exception $e) {
-            Log::error('ValidateJwtMiddleware: JWT validation error', [
+            $request->attributes->set(self::ATTRIBUTE_CLIENT_ID, $decoded->aud ?? null);
+            $request->attributes->set(self::ATTRIBUTE_PAYLOAD, $decoded);
+        } catch (JwtException $e) {
+            throw $e;
+        } catch (Throwable $e) {
+            Log::error('ValidateJwtMiddleware: Unexpected error', [
                 'message' => $e->getMessage(),
+                'exception' => get_class($e),
             ]);
             throw JwtException::invalidToken();
         }

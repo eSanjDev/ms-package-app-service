@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Esanj\AppService\Providers;
 
 use Esanj\AppService\Commands\ImportPermissionsCommand;
 use Esanj\AppService\Commands\InstallCommand;
+use Esanj\AppService\Contracts\ServiceServiceInterface;
 use Esanj\AppService\Http\Middleware\EnsureServicePermission;
 use Esanj\AppService\Http\Middleware\ValidateJwtMiddleware;
 use Esanj\AppService\Services\ServiceService;
@@ -30,7 +33,8 @@ class AppServiceProvider extends ServiceProvider
 
     protected function registerServices(): void
     {
-        $this->app->singleton(ServiceService::class);
+        $this->app->singleton(ServiceServiceInterface::class, ServiceService::class);
+        $this->app->alias(ServiceServiceInterface::class, ServiceService::class);
     }
 
     protected function registerMiddleware(): void
@@ -53,14 +57,14 @@ class AppServiceProvider extends ServiceProvider
 
     protected function registerViews(): void
     {
-        if (!config('esanj.app_service.just_api')) {
+        if (! config('esanj.app_service.just_api')) {
             $this->loadViewsFrom($this->packagePath('views'), 'app-service');
         }
     }
 
     protected function registerRoutes(): void
     {
-        if (!config('esanj.app_service.just_api')) {
+        if (! config('esanj.app_service.just_api')) {
             $this->loadRoutesFrom($this->packagePath('routes/web.php'));
         }
 
@@ -82,7 +86,7 @@ class AppServiceProvider extends ServiceProvider
 
     protected function registerPublishing(): void
     {
-        if (!$this->app->runningInConsole()) {
+        if (! $this->app->runningInConsole()) {
             return;
         }
 
