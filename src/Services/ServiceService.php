@@ -126,7 +126,7 @@ class ServiceService implements ServiceServiceInterface
 
     private function getPublicKeyPath(): string
     {
-        return config('esanj.manager.public_key_path', storage_path('oauth-public.key'));
+        return config('esanj.auth_bridge.public_key_path', storage_path('oauth-public.key'));
     }
 
     private function validatePublicKeyPath(string $path): void
