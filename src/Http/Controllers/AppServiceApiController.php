@@ -10,6 +10,7 @@ use Esanj\AppService\Http\Requests\ServiceRequest;
 use Esanj\AppService\Http\Resources\ServiceListResource;
 use Esanj\AppService\Http\Traits\RegistersPermissionMiddleware;
 use Esanj\AppService\Model\Service;
+use Esanj\AppService\Model\ServicePermission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -20,7 +21,8 @@ class AppServiceApiController extends BaseController
 
     public function __construct(
         protected ServiceServiceInterface $serviceService
-    ) {
+    )
+    {
         $this->registerPermissionMiddleware();
     }
 
@@ -42,7 +44,12 @@ class AppServiceApiController extends BaseController
     public function store(ServiceRequest $request): JsonResponse
     {
         $service = $this->serviceService->create($request->validated());
-        $this->serviceService->syncPermissions($service, $request->input('permissions'));
+
+        if ($request->has('permissions')) {
+            $request->input('permissions');
+            $permissions = ServicePermission::whereIn('id', $request->input('permissions'))->pluck('id')->toArray();
+            $this->serviceService->syncPermissions($service, $permissions);
+        }
 
         return $this->createdResponse(
             (new ServiceListResource($service))->toArray($request),
@@ -53,7 +60,12 @@ class AppServiceApiController extends BaseController
     public function update(ServiceRequest $request, Service $service): JsonResponse
     {
         $this->serviceService->update($service, $request->validated());
-        $this->serviceService->syncPermissions($service, $request->input('permissions'));
+
+        if ($request->has('permissions')) {
+            $request->input('permissions');
+            $permissions = ServicePermission::whereIn('id', $request->input('permissions'))->pluck('id')->toArray();
+            $this->serviceService->syncPermissions($service, $permissions);
+        }
 
         return $this->successResponse([
             'data' => new ServiceListResource($service->fresh()),
