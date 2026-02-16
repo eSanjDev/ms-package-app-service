@@ -47,7 +47,7 @@ class AppServiceApiController extends BaseController
 
         if ($request->has('permissions')) {
             $request->input('permissions');
-            $permissions = ServicePermission::whereIn('id', $request->input('permissions'))->pluck('id')->toArray();
+            $permissions = ServicePermission::whereIn('key', $request->input('permissions'))->pluck('id')->toArray();
             $this->serviceService->syncPermissions($service, $permissions);
         }
 
@@ -63,7 +63,7 @@ class AppServiceApiController extends BaseController
 
         if ($request->has('permissions')) {
             $request->input('permissions');
-            $permissions = ServicePermission::whereIn('id', $request->input('permissions'))->pluck('id')->toArray();
+            $permissions = ServicePermission::whereIn('key', $request->input('permissions'))->pluck('id')->toArray();
             $this->serviceService->syncPermissions($service, $permissions);
         }
 
