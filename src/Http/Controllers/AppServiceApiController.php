@@ -10,7 +10,6 @@ use Esanj\AppService\Http\Requests\ServiceRequest;
 use Esanj\AppService\Http\Resources\ServiceListResource;
 use Esanj\AppService\Http\Traits\RegistersPermissionMiddleware;
 use Esanj\AppService\Model\Service;
-use Esanj\AppService\Model\ServicePermission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -46,9 +45,7 @@ class AppServiceApiController extends BaseController
         $service = $this->serviceService->create($request->validated());
 
         if ($request->has('permissions')) {
-            $request->input('permissions');
-            $permissions = ServicePermission::whereIn('key', $request->input('permissions'))->pluck('id')->toArray();
-            $this->serviceService->syncPermissions($service, $permissions);
+            $this->serviceService->syncPermissions($service, $request->input('permissions'));
         }
 
         return $this->createdResponse(
@@ -62,9 +59,7 @@ class AppServiceApiController extends BaseController
         $this->serviceService->update($service, $request->validated());
 
         if ($request->has('permissions')) {
-            $request->input('permissions');
-            $permissions = ServicePermission::whereIn('key', $request->input('permissions'))->pluck('id')->toArray();
-            $this->serviceService->syncPermissions($service, $permissions);
+            $this->serviceService->syncPermissions($service, $request->input('permissions'));
         }
 
         return $this->successResponse([

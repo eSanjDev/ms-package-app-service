@@ -31,7 +31,7 @@ class ServicePermission extends Model
     {
         return $this->belongsToMany(
             Service::class,
-            'service_permissions_map',
+            'service_permission_map',
             'permission_id',
             'service_id'
         );
