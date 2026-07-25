@@ -94,7 +94,15 @@ class ServiceService implements ServiceServiceInterface
         $baseUrl = rtrim(config('esanj.auth_bridge.base_url'), '/');
         $url = "{$baseUrl}/api/application/clients/{$clientId}";
 
-        return $this->requestWithClientToken($url);
+        $response = $this->requestWithClientToken($url);
+
+        if ($response->status() === 401) {
+            $this->credentialsService->invalidateToken(config('esanj.auth_bridge.client_id'));
+
+            $response = $this->requestWithClientToken($url);
+        }
+
+        return $response;
     }
 
     private function requestWithClientToken(string $url): Response
