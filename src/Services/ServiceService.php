@@ -97,7 +97,10 @@ class ServiceService implements ServiceServiceInterface
         $response = $this->requestWithClientToken($url);
 
         if ($response->status() === 401) {
-            $this->credentialsService->invalidateToken(config('esanj.auth_bridge.client_id'));
+            $this->credentialsService->invalidateToken(
+                config('esanj.auth_bridge.client_id'),
+                config('esanj.auth_bridge.client_secret'),
+            );
 
             $response = $this->requestWithClientToken($url);
         }
