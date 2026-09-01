@@ -23,6 +23,8 @@ class ServiceService implements ServiceServiceInterface
 {
     private const SEARCH_COLUMNS = ['name', 'client_id'];
 
+    private ?string $publicKey = null;
+
     public function __construct(
         protected ClientCredentialsServiceInterface $credentialsService
     ) {}
@@ -120,13 +122,9 @@ class ServiceService implements ServiceServiceInterface
 
     public function decodeJWT(string $token): object
     {
-        $publicKeyPath = $this->getPublicKeyPath();
-
-        $this->validatePublicKeyPath($publicKeyPath);
+        $publicKey = $this->getPublicKey();
 
         try {
-            $publicKey = file_get_contents($publicKeyPath);
-
             return JWT::decode($token, new Key($publicKey, 'RS256'));
         } catch (ExpiredException $e) {
             Log::warning('JWT token expired', ['message' => $e->getMessage()]);
@@ -139,17 +137,38 @@ class ServiceService implements ServiceServiceInterface
             throw JwtException::invalidToken();
         }
     }
-
-    private function getPublicKeyPath(): string
+    
+    private function getPublicKey(): string
     {
-        return config('esanj.auth_bridge.public_key_path', storage_path('oauth-public.key'));
-    }
+        if ($this->publicKey !== null) {
+            return $this->publicKey;
+        }
 
-    private function validatePublicKeyPath(string $path): void
-    {
-        if (empty($path) || ! file_exists($path)) {
+        $inline = (string) (config('esanj.auth_bridge.public_key') ?? '');
+
+        if (trim($inline) !== '') {
+            if (! str_contains($inline, 'BEGIN PUBLIC KEY')) {
+                Log::error('ServiceService: Configured public_key is not a PEM block.');
+                throw new HttpException(500, 'Service authentication is not configured correctly.');
+            }
+
+            return $this->publicKey = $inline;
+        }
+
+        $path = (string) config('esanj.auth_bridge.public_key_path', storage_path('oauth-public.key'));
+
+        if ($path === '' || ! is_readable($path)) {
             Log::error('ServiceService: Public key file not found.', ['path' => $path]);
             throw new HttpException(500, 'Service authentication is not configured correctly.');
         }
+
+        $contents = file_get_contents($path);
+
+        if ($contents === false || trim($contents) === '') {
+            Log::error('ServiceService: Public key file is empty.', ['path' => $path]);
+            throw new HttpException(500, 'Service authentication is not configured correctly.');
+        }
+
+        return $this->publicKey = $contents;
     }
 }

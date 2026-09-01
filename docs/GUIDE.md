@@ -198,8 +198,9 @@ public function index(Request $request)
 ## 9. How JWT validation works
 
 - Services send a JWT signed with **RS256**.
-- This package verifies it using a **public key** at `config('esanj.auth_bridge.public_key_path')`
-  (default: `storage_path('oauth-public.key')`).
+- This package verifies it using the auth-bridge **public key** — the inline PEM in
+  `config('esanj.auth_bridge.public_key')` when set, otherwise the file at
+  `config('esanj.auth_bridge.public_key_path')` (default: `storage_path('oauth-public.key')`).
 - The token's **`aud`** (audience) claim must equal a registered service's `client_id`.
 
 So for validation to work, that public key file must exist on your server. If it's missing, requests fail with a
@@ -349,8 +350,9 @@ File: `config/esanj/app_service.php` (key `esanj.app_service`).
 ## 17. Troubleshooting
 
 **`500` "Service authentication is not configured correctly." (log: "Public key file not found").**
-The RS256 public key isn't where the package expects. Place it at `storage_path('oauth-public.key')` or set
-`esanj.auth_bridge.public_key_path` to the correct path, then `php artisan config:clear`.
+The RS256 public key isn't where the package expects. Place it at `storage_path('oauth-public.key')`, set
+`esanj.auth_bridge.public_key_path` to the correct path, or put the PEM itself in
+`esanj.auth_bridge.public_key` — then `php artisan config:clear`.
 
 **A service gets `403` even though I ticked its permission.**
 Check three things: the service is **Active**, the permission was **imported** (`app-service:permissions-import`),
