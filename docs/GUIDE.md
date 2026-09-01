@@ -265,14 +265,16 @@ Only active services that hold `reports.export` can reach it. Everything else ge
 
 You can inject your own Blade views into the create/edit forms without editing the package views.
 
-**Step 1 — create a partial**, e.g. `resources/views/admin/service-extra.blade.php`. On the **edit** form the
-current `$service` is in scope:
+**Step 1 — create a partial**, e.g. `resources/views/admin/service-extra.blade.php`. It is rendered inside both
+the **create** and **edit** forms; on edit the current `$service` is in scope (guard with `?? null` so the same
+partial works on create):
 
 ```blade
-<div class="card p-6 mt-4">
+<div class="row mt-5">
     <h3>Extra settings</h3>
-    {{-- your inputs; they post to the same form --}}
-    <input type="text" name="webhook_url" value="{{ old('webhook_url', $service->getMeta('webhook_url')) }}">
+    {{-- your inputs; they post with the same form --}}
+    <input type="text" name="extra[webhook_url]"
+           value="{{ old('extra.webhook_url', ($service ?? null)?->extra['webhook_url'] ?? '') }}">
 </div>
 ```
 
@@ -284,8 +286,9 @@ current `$service` is in scope:
 ],
 ```
 
-> The package validates only its own fields. To persist your custom inputs, handle them in your own code (e.g. a
-> model observer or a small controller) — a natural place is the [service meta](#13-recipe-store-extra-data-per-service-meta).
+> Inputs named `extra[...]` are saved automatically into the service's JSON `extra` column and read back as
+> `$service->extra['your_key']`. Inputs with any other name are **not** persisted by the package — handle them in
+> your own code (e.g. a model observer), or use the [service meta](#13-recipe-store-extra-data-per-service-meta).
 
 ---
 

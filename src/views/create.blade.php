@@ -80,6 +80,10 @@
                 </div>
             </div>
 
+            @foreach(config('esanj.app_service.extra_fields') as $field)
+                @include($field)
+            @endforeach
+
             <div class="row mt-5">
                 <div class="col-12">
                     <button class="btn btn-primary mt-3">Create Service</button>

@@ -91,6 +91,10 @@
                         </div>
                     </div>
 
+                    @foreach(config('esanj.app_service.extra_fields') as $field)
+                        @include($field)
+                    @endforeach
+
                     <div class="row mt-5">
                         <div class="col-12 mb-3">
                             <button class="btn btn-primary">Update Service</button>
@@ -100,7 +104,4 @@
             </div>
         </div>
     </form>
-    @foreach(config('esanj.app_service.extra_fields') as $field)
-        @include($field)
-    @endforeach
 @endsection

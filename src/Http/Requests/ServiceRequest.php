@@ -32,6 +32,7 @@ class ServiceRequest extends FormRequest
                 Rule::unique('services', 'client_id')->ignore($serviceId),
             ],
             'is_active' => ['boolean'],
+            'extra' => ['nullable', 'array'],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['integer', 'exists:service_permissions,id'],
         ];

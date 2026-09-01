@@ -137,7 +137,7 @@ class ServiceService implements ServiceServiceInterface
             throw JwtException::invalidToken();
         }
     }
-    
+
     private function getPublicKey(): string
     {
         if ($this->publicKey !== null) {
