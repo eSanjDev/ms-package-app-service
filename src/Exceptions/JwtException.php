@@ -28,11 +28,6 @@ class JwtException extends UnauthorizedHttpException
         return new self('Bearer Token', 'Token has expired.');
     }
 
-    public static function publicKeyNotFound(string $path = ''): self
-    {
-        return new self('Bearer Token', "Public key file not found at: {$path}");
-    }
-
     public static function invalidAudience(): self
     {
         return new self('Bearer Token', 'Token audience is invalid.');

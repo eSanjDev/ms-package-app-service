@@ -12,7 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 class EnsureServicePermission
@@ -69,7 +69,7 @@ class EnsureServicePermission
             $request->attributes->set(self::ATTRIBUTE_SERVICE, $service);
 
             return $next($request);
-        } catch (UnauthorizedHttpException $e) {
+        } catch (HttpExceptionInterface $e) {
             throw $e;
         } catch (ServiceException $e) {
             return $this->denyAccess($e->getMessage());

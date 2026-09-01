@@ -17,7 +17,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use RuntimeException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ServiceService implements ServiceServiceInterface
 {
@@ -149,7 +149,7 @@ class ServiceService implements ServiceServiceInterface
     {
         if (empty($path) || ! file_exists($path)) {
             Log::error('ServiceService: Public key file not found.', ['path' => $path]);
-            throw JwtException::publicKeyNotFound($path);
+            throw new HttpException(500, 'Service authentication is not configured correctly.');
         }
     }
 }

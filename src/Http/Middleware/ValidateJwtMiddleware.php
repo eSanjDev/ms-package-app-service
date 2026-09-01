@@ -10,6 +10,7 @@ use Esanj\AppService\Exceptions\JwtException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 class ValidateJwtMiddleware
@@ -34,7 +35,7 @@ class ValidateJwtMiddleware
 
             $request->attributes->set(self::ATTRIBUTE_CLIENT_ID, $decoded->aud ?? null);
             $request->attributes->set(self::ATTRIBUTE_PAYLOAD, $decoded);
-        } catch (JwtException $e) {
+        } catch (HttpExceptionInterface $e) {
             throw $e;
         } catch (Throwable $e) {
             Log::error('ValidateJwtMiddleware: Unexpected error', [

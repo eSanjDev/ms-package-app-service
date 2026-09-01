@@ -202,8 +202,8 @@ public function index(Request $request)
   (default: `storage_path('oauth-public.key')`).
 - The token's **`aud`** (audience) claim must equal a registered service's `client_id`.
 
-So for validation to work, that public key file must exist on your server. If it's missing you'll get a clear
-`401` with *"Public key file not found"* in the logs.
+So for validation to work, that public key file must exist on your server. If it's missing, requests fail with a
+generic `500` and *"Public key file not found"* (with the path) appears in the logs.
 
 | Situation                          | Response |
 |------------------------------------|----------|
@@ -348,7 +348,7 @@ File: `config/esanj/app_service.php` (key `esanj.app_service`).
 
 ## 17. Troubleshooting
 
-**`401` "Public key file not found".**
+**`500` "Service authentication is not configured correctly." (log: "Public key file not found").**
 The RS256 public key isn't where the package expects. Place it at `storage_path('oauth-public.key')` or set
 `esanj.auth_bridge.public_key_path` to the correct path, then `php artisan config:clear`.
 
