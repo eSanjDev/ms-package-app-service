@@ -1,5 +1,14 @@
 import BaseTable from '@js/pages/BaseTable.js';
 
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
+
 class ServiceTable extends BaseTable {
     constructor() {
         super('services', 'Service', {
@@ -35,7 +44,7 @@ class ServiceTable extends BaseTable {
                 data: 'name',
                 title: 'Name',
                 render(data, type, full) {
-                    return `<strong>${full.name}</strong>`;
+                    return `<strong>${escapeHtml(full.name)}</strong>`;
                 }
             },
             {
@@ -43,7 +52,7 @@ class ServiceTable extends BaseTable {
                 data: 'client_id',
                 title: 'Client ID',
                 render(data, type, full) {
-                    return `<span>${full['client_id']}</span>`;
+                    return `<span>${escapeHtml(full['client_id'])}</span>`;
                 }
             },
             {
@@ -58,7 +67,7 @@ class ServiceTable extends BaseTable {
                         false: '<span class="badge bg-label-danger me-1">Disable</span>'
                     }
 
-                    output = statusBadgeObj[status] || `<span class="badge bg-label-secondary me-1">${status}</span>`
+                    output = statusBadgeObj[status] || `<span class="badge bg-label-secondary me-1">${escapeHtml(status)}</span>`
 
                     return '<span class="text-nowrap">' + output + '</span>'
                 }
