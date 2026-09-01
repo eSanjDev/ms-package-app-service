@@ -39,6 +39,19 @@ class ImportPermissionsCommand extends Command
         }
 
         $this->info("Successfully imported {$count} permissions.");
+
+        $stale = ServicePermission::query()
+            ->whereNotIn('key', array_keys($permissions))
+            ->pluck('key');
+
+        if ($stale->isNotEmpty()) {
+            $this->warn('Permissions in the database that are no longer in the config (still assignable):');
+            foreach ($stale as $key) {
+                $this->line("  - {$key}");
+            }
+            $this->warn('Delete them manually if they should no longer exist.');
+        }
+
         return self::SUCCESS;
     }
 }

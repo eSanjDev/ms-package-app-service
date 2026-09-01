@@ -24,6 +24,7 @@ class ServiceListResource extends JsonResource
             'name' => $this->name,
             'client_id' => $this->client_id,
             'is_active' => $this->is_active,
+            'extra' => $this->extra,
             'deleted_at' => $this->deleted_at?->toDateTimeString(),
             'created_at' => $this->created_at?->toDateTimeString(),
             'updated_at' => $this->updated_at?->toDateTimeString(),

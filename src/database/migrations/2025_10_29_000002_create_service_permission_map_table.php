@@ -14,6 +14,8 @@ return new class extends Migration {
             $table->bigIncrements('id');
             $table->foreignId('service_id')->constrained('services')->cascadeOnDelete();
             $table->foreignId('permission_id')->constrained('service_permissions')->cascadeOnDelete();
+
+            $table->unique(['service_id', 'permission_id']);
         });
     }
 

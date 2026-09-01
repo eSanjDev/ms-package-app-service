@@ -46,7 +46,9 @@ class ServiceService implements ServiceServiceInterface
             });
         }
 
-        return $query->paginate($request->integer('per_page', 10));
+        $perPage = min(max($request->integer('per_page', 10), 1), 100);
+
+        return $query->paginate($perPage);
     }
 
     public function findById(int $id): Service
@@ -94,7 +96,7 @@ class ServiceService implements ServiceServiceInterface
     public function getClientDetails(string $clientId): Response
     {
         $baseUrl = rtrim(config('esanj.auth_bridge.base_url'), '/');
-        $url = "{$baseUrl}/api/application/clients/{$clientId}";
+        $url = "{$baseUrl}/api/application/clients/" . rawurlencode($clientId);
 
         $response = $this->requestWithClientToken($url);
 

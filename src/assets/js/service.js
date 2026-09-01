@@ -22,10 +22,15 @@ document.addEventListener('DOMContentLoaded', function () {
         this.classList.add('disabled');
 
         try {
-            Swal.showLoading()
+            Swal.fire({
+                title: 'Validating...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading(),
+            });
 
             const url = button.getAttribute('data-url')
-            const response = await fetch(`${url}?client_id=${clientId}`, {
+            const response = await fetch(`${url}?client_id=${encodeURIComponent(clientId)}`, {
                 method: 'GET',
             });
 

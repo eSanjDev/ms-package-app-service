@@ -44,7 +44,7 @@
                 <div class="col-lg-4 px-2 position-relative select-box mb-4">
                     <label class="form-label">Status</label>
                     <select name="is_active" class="form-select select2">
-                        <option @selected(old('is_active') == 0) value="0">Deactive</option>
+                        <option @selected(old('is_active', 1) == 0) value="0">Deactive</option>
                         <option @selected(old('is_active',1) == 1) value="1">Active</option>
                     </select>
                 </div>

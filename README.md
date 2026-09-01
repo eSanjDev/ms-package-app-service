@@ -108,7 +108,7 @@ These endpoints **manage** service records and are guarded by `manager.auth:api`
 | GET      | `/api/services/validation`    | `api.services.validation` | (manager auth)   |
 
 **Body for create/update:** `name` (required, unique), `client_id` (required, unique), `is_active` (boolean),
-`permissions` (array of **`service_permissions` IDs**).
+`extra` (object, stored as JSON), `permissions` (array of **`service_permissions` IDs**).
 
 ---
 
