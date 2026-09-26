@@ -48,7 +48,7 @@ class ServiceService implements ServiceServiceInterface
 
         $perPage = min(max($request->integer('per_page', 10), 1), 100);
 
-        return $query->paginate($perPage);
+        return $query->orderByDesc('id')->paginate($perPage);
     }
 
     public function findById(int $id): Service
