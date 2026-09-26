@@ -202,6 +202,9 @@ public function index(Request $request)
   `config('esanj.auth_bridge.public_key')` when set, otherwise the file at
   `config('esanj.auth_bridge.public_key_path')` (default: `storage_path('oauth-public.key')`).
 - The token's **`aud`** (audience) claim must equal a registered service's `client_id`.
+- The token must be a **machine** (client‑credentials) token: exactly one `aud`, and `sub` equal to it. The OAuth
+  server sets `sub` to the user id on tokens issued to a person, so a manager's own token for the same client —
+  same `aud`, same signature — is refused instead of acting as the service.
 
 So for validation to work, that public key file must exist on your server. If it's missing, requests fail with a
 generic `500` and *"Public key file not found"* (with the path) appears in the logs.
@@ -211,6 +214,7 @@ generic `500` and *"Public key file not found"* (with the path) appears in the l
 | No `Authorization` header          | `401`    |
 | Malformed / wrong‑signature token  | `401`    |
 | Expired token                      | `401`    |
+| User (non‑machine) token           | `401`    |
 | Token OK but service unknown       | `403`    |
 | Service inactive                   | `403`    |
 | Service lacks the permission       | `403`    |
@@ -360,6 +364,10 @@ The RS256 public key isn't where the package expects. Place it at `storage_path(
 **A service gets `403` even though I ticked its permission.**
 Check three things: the service is **Active**, the permission was **imported** (`app-service:permissions-import`),
 and the JWT's `aud` exactly matches the service's `client_id`.
+
+**A service gets `401` with a token that has a valid signature.**
+It is probably a user token (`sub` is a user id, not the `client_id`). Services must call with a client‑credentials
+token — `ClientCredentialsServiceInterface::getAccessToken()` in `esanj/auth-bridge`.
 
 **Managers can't open the panel (`403`).**
 The manager lacks a `services.*` permission. Import them (`manager:permissions-import`) and grant them to the

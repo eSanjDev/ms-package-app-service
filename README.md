@@ -146,7 +146,9 @@ attaches to the request:
 - `jwt_client_id` — the token's `aud` (audience) claim.
 - `jwt_payload` — the full decoded payload.
 
-On a missing/invalid/expired token it throws a `401 Unauthorized`.
+Only **machine** tokens (client credentials) are accepted: the token needs a single `aud` and a `sub` equal to it.
+A user's token issued to the same client has the same `aud` but `sub` = the user id, so it is refused. On a
+missing/invalid/expired or non-machine token it throws a `401 Unauthorized`.
 
 ### `service.permission:{key}` — authorize a service
 
@@ -162,6 +164,20 @@ Route::get('/transactions', [TransactionController::class, 'index'])
 Route::get('/transactions', [TransactionController::class, 'index'])
     ->middleware(['service.validation', 'service.permission:transactions.list']);
 ```
+
+---
+
+## ⬆️ Upgrading to 1.0.1
+
+- **Only machine tokens pass** `service.validation` / `service.permission` — a user's (authorization‑code) token
+  for the same client, or a token without `sub` or with several audiences, now gets `401`.
+- **The unique indexes** on `services.client_id` and `service_permission_map (service_id, permission_id)` are part
+  of the create migrations, so a database created before them doesn't have them — rebuild it
+  (e.g. `php artisan migrate:fresh`).
+- **`firebase/php-jwt` 7** is required; it refuses RSA keys shorter than 2048 bits
+  (`openssl rsa -pubin -in oauth-public.key -text -noout | head -1`).
+- **Republish and rebuild the table asset** (it now escapes the responsive details title):
+  `php artisan vendor:publish --tag=esanj-app-service-assets --force`, then `npm run build`.
 
 ---
 
