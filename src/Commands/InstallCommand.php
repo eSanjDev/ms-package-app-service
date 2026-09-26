@@ -13,9 +13,18 @@ class InstallCommand extends Command
     public function handle(): int
     {
         $this->info('Publishing configuration...');
+        $tags = ['esanj-app-service-assets'];
+
+        if (
+            ! file_exists(config_path('esanj/app_service.php'))
+            || $this->confirm('config/esanj/app_service.php already exists. Overwrite it?', false)
+        ) {
+            $tags[] = 'esanj-app-service-config';
+        }
+
         $this->call('vendor:publish', [
             '--provider' => "Esanj\\AppService\\Providers\\AppServiceProvider",
-            '--tag' => ['esanj-app-service-assets', 'esanj-app-service-config'],
+            '--tag' => $tags,
             '--force' => true,
         ]);
 
