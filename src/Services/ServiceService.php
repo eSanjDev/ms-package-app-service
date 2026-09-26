@@ -27,7 +27,9 @@ class ServiceService implements ServiceServiceInterface
 
     public function __construct(
         protected ClientCredentialsServiceInterface $credentialsService
-    ) {}
+    )
+    {
+    }
 
     public function getServicesWithPaginate(Request $request): LengthAwarePaginator
     {
@@ -169,10 +171,10 @@ class ServiceService implements ServiceServiceInterface
             return $this->publicKey;
         }
 
-        $inline = (string) (config('esanj.auth_bridge.public_key') ?? '');
+        $inline = (string)(config('esanj.auth_bridge.public_key') ?? '');
 
         if (trim($inline) !== '') {
-            if (! str_contains($inline, 'BEGIN PUBLIC KEY')) {
+            if (!str_contains($inline, 'BEGIN PUBLIC KEY')) {
                 Log::error('ServiceService: Configured public_key is not a PEM block.');
                 throw new HttpException(500, 'Service authentication is not configured correctly.');
             }
@@ -180,9 +182,9 @@ class ServiceService implements ServiceServiceInterface
             return $this->publicKey = $inline;
         }
 
-        $path = (string) config('esanj.auth_bridge.public_key_path', storage_path('oauth-public.key'));
+        $path = (string)config('esanj.auth_bridge.public_key_path', storage_path('oauth-public.key'));
 
-        if ($path === '' || ! is_readable($path)) {
+        if ($path === '' || !is_readable($path)) {
             Log::error('ServiceService: Public key file not found.', ['path' => $path]);
             throw new HttpException(500, 'Service authentication is not configured correctly.');
         }
