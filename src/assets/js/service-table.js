@@ -99,6 +99,17 @@ class ServiceTable extends BaseTable {
         ];
     }
 
+    getResponsiveSettings() {
+        const settings = super.getResponsiveSettings();
+        settings.details.display = $.fn.dataTable.Responsive.display.modal({
+            header(row) {
+                const data = row.data();
+                return `Details of ${escapeHtml(data.name ?? data.id)}`;
+            }
+        });
+        return settings;
+    }
+
     transformResponse(response) {
         return response.data.map(entityItem => ({
             id: entityItem.id,
