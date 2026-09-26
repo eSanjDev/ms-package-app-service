@@ -127,7 +127,7 @@ class ServiceService implements ServiceServiceInterface
         $publicKey = $this->getPublicKey();
 
         try {
-            return JWT::decode($token, new Key($publicKey, 'RS256'));
+            $decoded = JWT::decode($token, new Key($publicKey, 'RS256'));
         } catch (ExpiredException $e) {
             Log::warning('JWT token expired', ['message' => $e->getMessage()]);
             throw JwtException::expiredToken();
@@ -138,6 +138,29 @@ class ServiceService implements ServiceServiceInterface
             ]);
             throw JwtException::invalidToken();
         }
+
+        return $this->assertMachineToken($decoded);
+    }
+
+    private function assertMachineToken(object $decoded): object
+    {
+        $audiences = is_array($decoded->aud ?? null) ? $decoded->aud : [$decoded->aud ?? null];
+        $subject = $decoded->sub ?? null;
+
+        if (
+            count($audiences) !== 1
+            || !is_string($audiences[0])
+            || $audiences[0] === ''
+            || !is_string($subject)
+            || !hash_equals($audiences[0], $subject)
+        ) {
+            Log::warning('JWT refused: not a machine (client-credentials) token', ['aud' => $decoded->aud ?? null]);
+            throw JwtException::invalidToken();
+        }
+
+        $decoded->aud = $audiences[0];
+
+        return $decoded;
     }
 
     private function getPublicKey(): string

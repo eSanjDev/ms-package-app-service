@@ -62,7 +62,8 @@ interface ServiceServiceInterface
     public function getClientDetails(string $clientId): Response;
 
     /**
-     * Decode and validate JWT token.
+     * Decode and validate a service's JWT. Only machine (client-credentials) tokens pass: a single aud with
+     * sub equal to it. The returned payload's aud is always that string.
      */
     public function decodeJWT(string $token): object;
 }
