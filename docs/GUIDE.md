@@ -96,8 +96,7 @@ It publishes the config + assets, offers to run migrations, then imports both pe
 table is missing, run `php artisan migrate` first, then:
 
 ```bash
-php artisan app-service:permissions-import   # service_permissions → DB
-php artisan manager:permissions-import        # manager permissions → DB (from esanj/managers)
+php artisan app-service:permissions-import   # service permissions and the services.* manager permissions → DB
 ```
 
 **Step 3 — make sure the JWT public key exists** (see [section 9](#9-how-jwt-validation-works)).
@@ -370,7 +369,7 @@ It is probably a user token (`sub` is a user id, not the `client_id`). Services 
 token — `ClientCredentialsServiceInterface::getAccessToken()` in `esanj/auth-bridge`.
 
 **Managers can't open the panel (`403`).**
-The manager lacks a `services.*` permission. Import them (`manager:permissions-import`) and grant them to the
+The manager lacks a `services.*` permission. Import them (`app-service:permissions-import`) and grant them to the
 manager in `esanj/managers` (admins bypass all checks).
 
 **The panel pages error / look broken.**
@@ -394,7 +393,7 @@ Run `php artisan migrate`, then `php artisan app-service:permissions-import`.
 # Install & set up
 composer require esanj/app-service
 php artisan app-service:install
-php artisan app-service:permissions-import   # re-import service permissions after editing config
+php artisan app-service:permissions-import   # re-import both permission lists after editing config
 
 # After config/.env changes
 php artisan config:clear

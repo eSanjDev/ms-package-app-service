@@ -43,11 +43,11 @@ php artisan app-service:install
 1. Publish the **assets** and **config** (`config/esanj/app_service.php`).
 2. Ask to run **migrations** (creates `services`, `service_metas`, `service_permissions`,
    `service_permission_map`).
-3. Import the **service permissions** (`app-service:permissions-import`).
-4. Import the **manager permissions** (the `permissions` from this package's config) into `esanj/managers`.
+3. Run `app-service:permissions-import`, which imports the **service permissions** and the **manager
+   permissions** (the `permissions` from this package's config, into `esanj/managers`).
 
-> Steps 3–4 are skipped with a warning if the relevant tables don't exist yet — run `php artisan migrate` first,
-> then re‑run the import commands.
+> Step 3 is skipped with a warning if the tables don't exist yet — run `php artisan migrate` first, then
+> `php artisan app-service:permissions-import`.
 
 ---
 
@@ -126,7 +126,7 @@ Define the permissions your services can hold in `config/esanj/app_service.php`:
 ],
 ```
 
-Import them into the database:
+Import them into the database (the same command also imports the manager permissions):
 
 ```bash
 php artisan app-service:permissions-import
