@@ -167,6 +167,15 @@ Route::get('/transactions', [TransactionController::class, 'index'])
 
 ---
 
+## ⬆️ Upgrading to 1.0.2
+
+- **Validating a client needs `services.create` or `services.update`**, and answers with the client's name only
+  (`{"data": {"name": "..."}}`). A failed lookup is a `400` with a message instead of the account service's own status.
+- **`app-service:permissions-import` also imports the manager permissions** (`services.*`) into `esanj/managers`;
+  there is no need to run `manager:permissions-import` for them, and installing no longer calls the `managers.*`
+  permissions obsolete.
+- **Creating or updating a service works under `Model::shouldBeStrict()`.**
+
 ## ⬆️ Upgrading to 1.0.1
 
 - **Laravel 12 or 13 is required.** 10 and 11 are past their security support, and Composer 2.9+ refuses to
