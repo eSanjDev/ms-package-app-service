@@ -39,8 +39,10 @@ class ServiceService implements ServiceServiceInterface
             $query->onlyTrashed();
         }
 
-        if ($request->filled('search')) {
-            $searchTerm = $request->input('search');
+        $searchTerm = $request->input('search');
+
+        if (is_string($searchTerm) && trim($searchTerm) !== '') {
+            $searchTerm = trim($searchTerm);
             $query->where(function ($q) use ($searchTerm) {
                 foreach (self::SEARCH_COLUMNS as $column) {
                     $q->orWhere($column, 'like', "%{$searchTerm}%");
