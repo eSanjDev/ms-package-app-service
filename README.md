@@ -88,7 +88,7 @@ edit, delete, and restore services.
 | PUT/PATCH   | `/admin/services/{id}`       | `services.update`    | `services.update`    |
 | DELETE      | `/admin/services/{id}`       | `services.destroy`   | `services.delete`    |
 | POST        | `/admin/services/{id}/restore` | `services.restore` | `services.delete`    |
-| GET         | `/admin/services/validation` | `services.validation`| (authenticated manager) |
+| GET         | `/admin/services/validation` | `services.validation`| `services.create` or `services.update` |
 
 ---
 
@@ -105,7 +105,7 @@ These endpoints **manage** service records and are guarded by `manager.auth:api`
 | PUT/PATCH| `/api/services/{id}`          | `api.services.update`   | `services.update`  |
 | DELETE   | `/api/services/{id}`          | `api.services.destroy`  | `services.delete`  |
 | POST     | `/api/services/{id}/restore`  | `api.services.restore`  | `services.delete`  |
-| GET      | `/api/services/validation`    | `api.services.validation` | (manager auth)   |
+| GET      | `/api/services/validation`    | `api.services.validation` | `services.create` or `services.update` |
 
 **Body for create/update:** `name` (required, unique), `client_id` (required, unique), `is_active` (boolean),
 `extra` (object, stored as JSON), `permissions` (array of **`service_permissions` IDs**).

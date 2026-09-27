@@ -128,7 +128,7 @@ The JWT/OAuth bits come from `esanj/auth-bridge`'s config (`esanj.auth_bridge.*`
 3. Click **Add New Service**, then fill in:
    - **Name** — a label for the service (must be unique).
    - **Client ID** — the service's OAuth client id (must be unique). The **Validate** button looks it up on the
-     auth‑bridge server so you can confirm it's real.
+     auth‑bridge server so you can confirm it's real (it needs `services.create` or `services.update`).
    - **Status** — Active/Deactive. Inactive services are rejected by `service.permission`.
    - **Permissions** — tick the `service_permissions` this service may use.
 4. Save. You can edit, soft‑delete, and restore services later from the same screen.
