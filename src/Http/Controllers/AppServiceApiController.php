@@ -43,7 +43,7 @@ class AppServiceApiController extends BaseController
 
     public function store(ServiceRequest $request): JsonResponse
     {
-        $service = $this->serviceService->create($request->validated());
+        $service = $this->serviceService->create($request->safe()->except('permissions'));
 
         if ($request->has('permissions')) {
             $this->serviceService->syncPermissions($service, $request->input('permissions'));
@@ -57,7 +57,7 @@ class AppServiceApiController extends BaseController
 
     public function update(ServiceRequest $request, Service $service): JsonResponse
     {
-        $this->serviceService->update($service, $request->validated());
+        $this->serviceService->update($service, $request->safe()->except('permissions'));
 
         if ($request->has('permissions')) {
             $this->serviceService->syncPermissions($service, $request->input('permissions'));

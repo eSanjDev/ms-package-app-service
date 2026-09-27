@@ -55,7 +55,7 @@ class AppServiceController extends BaseController
 
     public function store(ServiceRequest $request): RedirectResponse
     {
-        $service = $this->serviceService->create($request->validated());
+        $service = $this->serviceService->create($request->safe()->except('permissions'));
         $this->serviceService->syncPermissions($service, $request->input('permissions'));
 
         return redirect()
@@ -74,7 +74,7 @@ class AppServiceController extends BaseController
 
     public function update(ServiceRequest $request, Service $service): RedirectResponse
     {
-        $this->serviceService->update($service, $request->validated());
+        $this->serviceService->update($service, $request->safe()->except('permissions'));
         $this->serviceService->syncPermissions($service, $request->input('permissions'));
 
         return redirect()
