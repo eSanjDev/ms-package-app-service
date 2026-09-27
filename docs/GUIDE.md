@@ -69,7 +69,7 @@ They live in the same file but are imported by different commands into different
 
 ## 3. Requirements & dependencies
 
-- **PHP** 8.2+, **Laravel** 10–13.
+- **PHP** 8.2+, **Laravel** 12–13.
 - **`esanj/managers`** (required) — provides admin login and the `manager.auth` / `manager.permission` middleware.
 - **`esanj/auth-bridge`** (required, auto‑installed) — provides OAuth client credentials and the **public key**
   used to verify service JWTs.

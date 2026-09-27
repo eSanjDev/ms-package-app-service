@@ -4,7 +4,7 @@ The **App Service** package is part of the Esanj microservice ecosystem. It lets
 external **services** (each identified by a `client_id`), assign **per‑service API permissions**, and validate
 incoming **JWT** requests from those services — through both a web admin panel and a JSON API.
 
-**Supports:** Laravel 10 · 11 · 12 · 13 — PHP 8.2+
+**Supports:** Laravel 12 · 13 — PHP 8.2+
 
 ---
 
@@ -22,7 +22,7 @@ incoming **JWT** requests from those services — through both a web admin panel
 ## ⚙️ Requirements
 
 - **PHP** 8.2+
-- **Laravel** 10–13
+- **Laravel** 12–13
 - **`esanj/managers`** — admin authentication & the `manager.auth` / `manager.permission` middleware (required).
 - **`esanj/auth-bridge`** — OAuth client credentials & the public key used to verify service JWTs (required;
   installed automatically).
@@ -169,6 +169,9 @@ Route::get('/transactions', [TransactionController::class, 'index'])
 
 ## ⬆️ Upgrading to 1.0.1
 
+- **Laravel 12 or 13 is required.** 10 and 11 are past their security support, and Composer 2.9+ refuses to
+  install any of their releases.
+- **Requires `esanj/managers` and `esanj/auth-bridge` 1.0.1+** (php-jwt 7).
 - **Only machine tokens pass** `service.validation` / `service.permission` — a user's (authorization‑code) token
   for the same client, or a token without `sub` or with several audiences, now gets `401`.
 - **The unique indexes** on `services.client_id` and `service_permission_map (service_id, permission_id)` are part
