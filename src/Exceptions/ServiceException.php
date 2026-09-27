@@ -67,6 +67,15 @@ class ServiceException extends Exception
         );
     }
 
+    public static function clientLookupDenied(string ...$permissions): self
+    {
+        return new self(
+            'Validating a client needs the ' . implode(' or ', $permissions) . ' permission.',
+            403,
+            context: ['permissions' => $permissions]
+        );
+    }
+
     public static function clientValidationFailed(string $clientId, string $error): self
     {
         return new self(

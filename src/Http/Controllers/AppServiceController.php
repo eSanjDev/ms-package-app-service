@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Esanj\AppService\Http\Controllers;
 
 use Esanj\AppService\Contracts\ServiceServiceInterface;
-use Esanj\AppService\Exceptions\ServiceException;
 use Esanj\AppService\Http\Requests\ServiceRequest;
 use Esanj\AppService\Http\Resources\ServiceListResource;
 use Esanj\AppService\Http\Traits\HasServicePermissions;
 use Esanj\AppService\Http\Traits\RegistersPermissionMiddleware;
+use Esanj\AppService\Http\Traits\ValidatesClients;
 use Esanj\AppService\Model\Service;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -21,6 +21,7 @@ class AppServiceController extends BaseController
 {
     use HasServicePermissions;
     use RegistersPermissionMiddleware;
+    use ValidatesClients;
 
     public function __construct(
         protected ServiceServiceInterface $serviceService
@@ -93,18 +94,5 @@ class AppServiceController extends BaseController
         $this->serviceService->restore($id);
 
         return $this->noContentResponse();
-    }
-
-    public function validateClient(Request $request): JsonResponse
-    {
-        $clientId = $request->input('client_id');
-
-        if (empty($clientId)) {
-            throw ServiceException::clientIdRequired();
-        }
-
-        $response = $this->serviceService->getClientDetails($clientId);
-
-        return response()->json($response->json(), $response->status());
     }
 }
