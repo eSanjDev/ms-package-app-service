@@ -99,7 +99,7 @@ class ServiceService implements ServiceServiceInterface
 
     public function getClientDetails(string $clientId): Response
     {
-        $baseUrl = rtrim(config('esanj.auth_bridge.base_url'), '/');
+        $baseUrl = rtrim((string) config('esanj.auth_bridge.base_url'), '/');
         $url = "{$baseUrl}/api/application/clients/" . rawurlencode($clientId);
 
         $response = $this->requestWithClientToken($url);
@@ -123,7 +123,11 @@ class ServiceService implements ServiceServiceInterface
             config('esanj.auth_bridge.client_secret')
         );
 
-        return Http::withToken($tokenData->accessToken)->get($url);
+        return Http::withToken($tokenData->accessToken)
+            ->acceptJson()
+            ->connectTimeout(5)
+            ->timeout(10)
+            ->get($url);
     }
 
     public function decodeJWT(string $token): object
