@@ -67,8 +67,6 @@ class EnsureServicePermission
             }
 
             $request->attributes->set(self::ATTRIBUTE_SERVICE, $service);
-
-            return $next($request);
         } catch (HttpExceptionInterface $e) {
             throw $e;
         } catch (ServiceException $e) {
@@ -81,6 +79,8 @@ class EnsureServicePermission
 
             return $this->denyAccess(__('An internal authorization error occurred.'));
         }
+
+        return $next($request);
     }
 
     protected function denyAccess(string $message): JsonResponse
