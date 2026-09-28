@@ -26,6 +26,8 @@ incoming **JWT** requests from those services — through both a web admin panel
 - **`esanj/managers`** — admin authentication & the `manager.auth` / `manager.permission` middleware (required).
 - **`esanj/auth-bridge`** — OAuth client credentials & the public key used to verify service JWTs (required;
   installed automatically).
+- **`firebase/php-jwt`** 7 — verifies service JWTs (installed automatically); it refuses RSA keys shorter than
+  2048 bits.
 - **`esanj/layout-master`** — only for the **web UI** (the views extend its master layout). Not needed in
   [API‑only mode](#-api-only-mode).
 
@@ -164,32 +166,6 @@ Route::get('/transactions', [TransactionController::class, 'index'])
 Route::get('/transactions', [TransactionController::class, 'index'])
     ->middleware(['service.validation', 'service.permission:transactions.list']);
 ```
-
----
-
-## ⬆️ Upgrading to 1.0.2
-
-- **Validating a client needs `services.create` or `services.update`**, and answers with the client's name only
-  (`{"data": {"name": "..."}}`). A failed lookup is a `400` with a message instead of the account service's own status.
-- **`app-service:permissions-import` also imports the manager permissions** (`services.*`) into `esanj/managers`;
-  there is no need to run `manager:permissions-import` for them, and installing no longer calls the `managers.*`
-  permissions obsolete.
-- **Creating or updating a service works under `Model::shouldBeStrict()`.**
-
-## ⬆️ Upgrading to 1.0.1
-
-- **Laravel 12 or 13 is required.** 10 and 11 are past their security support, and Composer 2.9+ refuses to
-  install any of their releases.
-- **Requires `esanj/managers` and `esanj/auth-bridge` 1.0.1+** (php-jwt 7).
-- **Only machine tokens pass** `service.validation` / `service.permission` — a user's (authorization‑code) token
-  for the same client, or a token without `sub` or with several audiences, now gets `401`.
-- **The unique indexes** on `services.client_id` and `service_permission_map (service_id, permission_id)` are part
-  of the create migrations, so a database created before them doesn't have them — rebuild it
-  (e.g. `php artisan migrate:fresh`).
-- **`firebase/php-jwt` 7** is required; it refuses RSA keys shorter than 2048 bits
-  (`openssl rsa -pubin -in oauth-public.key -text -noout | head -1`).
-- **Republish and rebuild the table asset** (it now escapes the responsive details title):
-  `php artisan vendor:publish --tag=esanj-app-service-assets --force`, then `npm run build`.
 
 ---
 
